@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DIVERA 24/7 – Terminerfassung</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --border2: #2e3450;
+    --accent: #e63946;
+    --accent-dim: rgba(230,57,70,0.15);
+    --blue: #3a86ff;
+    --blue-dim: rgba(58,134,255,0.12);
+    --green: #2dc653;
+    --orange: #f4a261;
+    --purple: #9b5de5;
+    --purple-dim: rgba(155,93,229,0.12);
+    --text: #e8eaf2;
+    --text-dim: #6b7194;
+    --text-mid: #9ba3c4;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --r: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { background: linear-gradient(135deg, #c1121f 0%, #e63946 60%, #ff6b6b 100%); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 24px rgba(230,57,70,0.4); position: sticky; top: 0; z-index: 100; }
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .header-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-title { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-sub { font-size: 11px; opacity: 0.7; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; }
+
+  .btn { padding: 8px 16px; border-radius: var(--r); border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; white-space: nowrap; }
+  .btn-red { background: var(--accent); color: #fff; }
+  .btn-red:hover { background: #c1121f; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(230,57,70,0.4); }
+  .btn-purple { background: var(--purple); color: #fff; }
+  .btn-purple:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(155,93,229,0.4); }
+  .btn-ghost-white { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+  .btn-ghost-white:hover { background: rgba(255,255,255,0.25); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 6px 8px; font-size: 14px; background: transparent; border: none; color: var(--text-dim); cursor: pointer; border-radius: 6px; transition: all 0.15s; }
+  .btn-icon:hover { background: var(--surface2); color: var(--text); }
+  .btn-icon.del:hover { color: var(--accent); background: var(--accent-dim); }
+
+  .tab-bar { display: flex; gap: 2px; background: var(--bg); padding: 6px; border-bottom: 1px solid var(--border); }
+  .tab-btn { flex: 1; padding: 8px 12px; border: none; border-radius: 6px; font-family: var(--sans); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--text-dim); background: transparent; }
+  .tab-btn.active { background: var(--surface2); color: var(--text); }
+  .tab-btn:hover:not(.active) { color: var(--text-mid); background: rgba(255,255,255,0.04); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .app { display: grid; grid-template-columns: 400px 1fr; flex: 1; min-height: 0; }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; }
+
+  .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .tpl-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--text-mid); text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+  .tpl-btn:hover { border-color: var(--accent); color: var(--text); background: var(--accent-dim); }
+  .tpl-btn.serie-tpl { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+  .tpl-btn.serie-tpl:hover { filter: brightness(1.2); }
+  .tpl-icon { font-size: 14px; }
+
+  .form-group { margin-bottom: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+  input[type="date"], input[type="time"], input[type="text"], input[type="number"], textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r); color: var(--text); padding: 9px 11px; font-size: 13px; font-family: var(--sans); transition: border-color 0.15s, box-shadow 0.15s; outline: none; -webkit-appearance: none; }
+  input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
+  input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 56px; }
+  .form-actions { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+  .serie-info { background: var(--purple-dim); border: 1px solid var(--purple); border-radius: var(--r); padding: 10px 12px; font-size: 12px; color: var(--text-mid); margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
+
+  .wochentag-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+  .wt-btn { padding: 6px 2px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--text-dim); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; font-family: var(--sans); }
+  .wt-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .wt-btn:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
+
+  .wochen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 4px; }
+  .wo-btn { padding: 6px 4px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--text-dim); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; font-family: var(--sans); }
+  .wo-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .wo-btn:hover:not(.active) { border-color: var(--blue); color: var(--blue); }
+
+  .serie-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; font-size: 12px; font-family: var(--mono); color: var(--text-mid); max-height: 130px; overflow-y: auto; margin-top: 6px; }
+  .spi { padding: 3px 0; border-bottom: 1px solid var(--border); }
+  .spi:last-child { border-bottom: none; }
+
+  .main { background: var(--bg); overflow-y: auto; display: flex; flex-direction: column; }
+  .main-header { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .main-header-left { display: flex; align-items: center; gap: 10px; }
+  .main-title { font-size: 14px; font-weight: 700; }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; font-family: var(--mono); }
+
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--text-dim); padding: 60px; text-align: center; }
+  .empty-icon { font-size: 56px; opacity: 0.25; }
+  .empty-title { font-size: 16px; font-weight: 700; color: var(--text-mid); }
+
+  .card-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; transition: border-color 0.15s, box-shadow 0.15s; animation: fadeUp 0.2s ease both; }
+  .card.sc { border-left: 3px solid var(--purple); }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .card:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .card-thema { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; box-shadow: 0 0 6px var(--accent); }
+  .dot.s { background: var(--purple); box-shadow: 0 0 6px var(--purple); }
+  .card-meta { display: flex; flex-direction: column; gap: 5px; }
+  .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-mid); font-family: var(--mono); }
+  .meta-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dim); width: 38px; flex-shrink: 0; font-family: var(--sans); }
+  .card-text { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); font-style: italic; }
+  .card-actions { display: flex; flex-direction: column; gap: 4px; }
+  .stag { display:inline-block; background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; pointer-events: none; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .main { min-height: 50vh; }
+    header { padding: 0 16px; }
+    .header-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-icon">🚒</div>
+    <div>
+      <div class="header-title">DIVERA 24/7 – Terminerfassung</div>
+      <div class="header-sub">Termine standardisiert erfassen &amp; exportieren</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost-white btn-sm" onclick="importCSV()">📂 Importieren</button>
+    <button class="btn btn-ghost-white btn-sm" onclick="exportCSV()">💾 CSV Export</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+
+    <!-- Schnellvorlagen -->
+    <div class="sidebar-section">
+      <div class="section-label">Schnellvorlagen</div>
+      <div class="template-grid">
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5)"><span class="tpl-icon">🔧</span>Übungsdienst</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2)"><span class="tpl-icon">📋</span>Versammlung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4)"><span class="tpl-icon">📚</span>Schulung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Probealarm','','Gerätehaus',0.5)"><span class="tpl-icon">🚨</span>Probealarm</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Technische Hilfeleistung','','Einsatzort',2)"><span class="tpl-icon">⚙️</span>THL</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Jahreshauptversammlung','','Gerätehaus',3)"><span class="tpl-icon">🏛️</span>JHV</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Atemschutzübung','','Übungsgelände',3)"><span class="tpl-icon">😷</span>AGT-Übung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Fahrzeugkunde','','Wache',2)"><span class="tpl-icon">🚗</span>Fahrzeugkunde</button>
+        <button class="tpl-btn serie-tpl" style="grid-column:span 2" onclick="switchTab('serie');applySerieVorlage()"><span class="tpl-icon">🔁</span>Probealarm als Serientermin</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-einzel" onclick="switchTab('einzel')">📅 Einzeltermin</button>
+      <button class="tab-btn" id="tab-serie" onclick="switchTab('serie')">🔁 Serientermin</button>
+    </div>
+
+    <!-- Einzeltermin -->
+    <div class="tab-panel active sidebar-section" id="panel-einzel" style="flex:1">
+      <div class="section-label" id="formTitle">Neuer Termin</div>
+      <div class="form-row">
+        <div class="form-group"><label>Beginn Datum *</label><input type="date" id="beginDatum"/></div>
+        <div class="form-group"><label>Beginn Uhrzeit *</label><input type="time" id="beginZeit" value="12:00"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Ende Datum *</label><input type="date" id="endeDatum"/></div>
+        <div class="form-group"><label>Ende Uhrzeit *</label><input type="time" id="endeZeit" value="15:30"/></div>
+      </div>
+      <div class="form-group"><label>Thema *</label><input type="text" id="thema" placeholder="z.B. Übungsdienst …"/></div>
+      <div class="form-group"><label>Text / Beschreibung</label><textarea id="text" placeholder="Zusätzliche Hinweise …"></textarea></div>
+      <div class="form-group"><label>Ort *</label><input type="text" id="ort" placeholder="z.B. Wache, Gerätehaus …"/></div>
+      <div class="form-actions">
+        <button class="btn btn-red" onclick="saveTermin()" id="saveBtn" style="flex:1">＋&nbsp;Termin hinzufügen</button>
+        <button class="btn btn-outline" onclick="resetForm()" title="Zurücksetzen">↺</button>
+      </div>
+    </div>
+
+    <!-- Serientermin -->
+    <div class="tab-panel sidebar-section" id="panel-serie" style="flex:1">
+      <div class="section-label">Serientermin konfigurieren</div>
+      <div class="serie-info"><span>🔁</span><span>Legt viele Einzeltermine auf einmal an – z.B. jeden 1. Samstag im Monat für ein ganzes Jahr.</span></div>
+
+      <div class="form-group"><label>Thema *</label><input type="text" id="s-thema" placeholder="z.B. Probealarm"/></div>
+      <div class="form-group"><label>Text / Beschreibung</label><textarea id="s-text" placeholder="Zusätzliche Hinweise …" style="min-height:44px"></textarea></div>
+      <div class="form-group"><label>Ort *</label><input type="text" id="s-ort" placeholder="z.B. Gerätehaus"/></div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Beginn Uhrzeit *</label><input type="time" id="s-bz" value="12:00" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>Ende Uhrzeit *</label><input type="time" id="s-ez" value="12:30" oninput="updatePreview()"/></div>
+      </div>
+
+      <div class="form-group">
+        <label>Wochentag(e)</label>
+        <div class="wochentag-grid">
+          <button class="wt-btn" data-wt="1" onclick="toggleWT(this)">Mo</button>
+          <button class="wt-btn" data-wt="2" onclick="toggleWT(this)">Di</button>
+          <button class="wt-btn" data-wt="3" onclick="toggleWT(this)">Mi</button>
+          <button class="wt-btn" data-wt="4" onclick="toggleWT(this)">Do</button>
+          <button class="wt-btn" data-wt="5" onclick="toggleWT(this)">Fr</button>
+          <button class="wt-btn active" data-wt="6" onclick="toggleWT(this)">Sa</button>
+          <button class="wt-btn" data-wt="0" onclick="toggleWT(this)">So</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Welche(r) im Monat</label>
+        <div class="wochen-grid">
+          <button class="wo-btn active" data-wo="1" onclick="toggleWO(this)">1.</button>
+          <button class="wo-btn active" data-wo="2" onclick="toggleWO(this)">2.</button>
+          <button class="wo-btn active" data-wo="3" onclick="toggleWO(this)">3.</button>
+          <button class="wo-btn active" data-wo="4" onclick="toggleWO(this)">4.</button>
+          <button class="wo-btn active" data-wo="5" onclick="toggleWO(this)">5.</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Welches Vorkommen des Wochentags soll erfasst werden?</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Von Datum *</label><input type="date" id="s-von" oninput="updatePreview()"/></div>
+        <div class="form-group"><label>Bis Datum *</label><input type="date" id="s-bis" oninput="updatePreview()"/></div>
+      </div>
+
+      <div class="form-group">
+        <label>Vorschau</label>
+        <div class="serie-preview" id="seriePreview"><span style="color:var(--text-dim)">Felder ausfüllen …</span></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-purple" onclick="addSerie()" style="flex:1">🔁&nbsp;Alle Termine anlegen</button>
+        <button class="btn btn-outline" onclick="resetSerie()">↺</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div class="main-header-left">
+        <span class="main-title">Erfasste Termine</span>
+        <span class="badge" id="badge">0</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="clearAll()" id="clearBtn" style="display:none">🗑 Alle löschen</button>
+    </div>
+    <div id="listWrap" style="flex:1;display:flex;flex-direction:column;">
+      <div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Noch keine Termine erfasst</div><div>Wähle eine Vorlage oder fülle das Formular links aus.</div></div>
+    </div>
+  </main>
+</div>
+
+<input type="file" id="fileInput" accept=".csv" style="display:none" onchange="handleImport(event)"/>
+<div class="toast" id="toast"></div>
+
+<script>
+  let termine = [];
+  let editIdx = -1;
+  const today = new Date().toISOString().slice(0,10);
+  const yr = new Date().getFullYear();
+  document.getElementById('beginDatum').value = today;
+  document.getElementById('endeDatum').value  = today;
+  document.getElementById('s-von').value = `${yr}-01-01`;
+  document.getElementById('s-bis').value = `${yr}-12-31`;
+
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2,'0');
+
+  function toCSVDate(iso, time) { const [y,m,d]=iso.split('-'); return `${d}.${m}.${y} ${time}`; }
+  function fromCSVDate(dt) { const [dp,t]=dt.trim().split(' '); const [d,m,y]=dp.split('.'); return {date:`${y}-${m}-${d}`,time:t}; }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function toast(msg, bg='var(--green)', fg='#071a0c') {
+    const t=$('toast'); t.textContent=msg; t.style.background=bg; t.style.color=fg;
+    t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
+  }
+
+  function switchTab(w) {
+    ['einzel','serie'].forEach(t=>{
+      $(`tab-${t}`).classList.toggle('active',t===w);
+      $(`panel-${t}`).classList.toggle('active',t===w);
+    });
+  }
+
+  function applyTpl(thema,text,ort,h) {
+    $('thema').value=thema; $('text').value=text; $('ort').value=ort;
+    const [bh,bm]=($('beginZeit').value||'12:00').split(':').map(Number);
+    const tot=bh*60+bm+Math.round(h*60);
+    $('endeZeit').value=pad(Math.floor(tot/60)%24)+':'+pad(tot%60);
+    $('endeDatum').value=$('beginDatum').value;
+  }
+
+  function applySerieVorlage() {
+    $('s-thema').value='Probealarm'; $('s-text').value=''; $('s-ort').value='Gerätehaus';
+    $('s-bz').value='12:00'; $('s-ez').value='12:30';
+    document.querySelectorAll('.wt-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.wt-btn[data-wt="6"]').classList.add('active');
+    document.querySelectorAll('.wo-btn').forEach(b=>b.classList.add('active'));
+    updatePreview();
+  }
+
+  function toggleWT(b) { b.classList.toggle('active'); updatePreview(); }
+  function toggleWO(b) { b.classList.toggle('active'); updatePreview(); }
+
+  function getSerieTermine() {
+    const von=$('s-von').value, bis=$('s-bis').value, bz=$('s-bz').value, ez=$('s-ez').value;
+    if (!von||!bis||!bz||!ez) return [];
+    const wts=[...document.querySelectorAll('.wt-btn.active')].map(b=>+b.dataset.wt);
+    const wos=[...document.querySelectorAll('.wo-btn.active')].map(b=>+b.dataset.wo);
+    if (!wts.length||!wos.length) return [];
+    const result=[], start=new Date(von), end=new Date(bis);
+    end.setHours(23,59,59);
+    let cur=new Date(start.getFullYear(),start.getMonth(),1);
+    while (cur<=end) {
+      const y=cur.getFullYear(), m=cur.getMonth();
+      wts.forEach(wt=>{
+        const occ=[];
+        const dim=new Date(y,m+1,0).getDate();
+        for (let d=1;d<=dim;d++) { const day=new Date(y,m,d); if(day.getDay()===wt) occ.push(day); }
+        wos.forEach(nth=>{ if(nth<=occ.length){ const day=occ[nth-1]; if(day>=start&&day<=end){ const iso=`${day.getFullYear()}-${pad(day.getMonth()+1)}-${pad(day.getDate())}`; result.push({iso,begin:toCSVDate(iso,bz),ende:toCSVDate(iso,ez)}); } }});
+      });
+      cur.setMonth(cur.getMonth()+1);
+    }
+    result.sort((a,b)=>a.iso.localeCompare(b.iso));
+    const seen=new Set();
+    return result.filter(r=>{ if(seen.has(r.begin))return false; seen.add(r.begin); return true; });
+  }
+
+  function updatePreview() {
+    const dates=getSerieTermine(), p=$('seriePreview'), bz=$('s-bz').value, ez=$('s-ez').value;
+    if(!dates.length){p.innerHTML='<span style="color:var(--text-dim)">Keine Treffer – Einstellungen anpassen …</span>';return;}
+    p.innerHTML=dates.map(d=>`<div class="spi">${d.begin.split(' ')[0]}&nbsp;&nbsp;${bz}–${ez}</div>`).join('')
+      +`<div style="color:var(--purple);font-weight:700;padding-top:6px">${dates.length} Termin(e)</div>`;
+  }
+
+  function addSerie() {
+    const thema=$('s-thema').value.trim(), text=$('s-text').value.trim(), ort=$('s-ort').value.trim();
+    if(!thema||!ort||!$('s-von').value||!$('s-bis').value){toast('⚠️ Bitte alle Pflichtfelder ausfüllen!','var(--orange)','#fff');return;}
+    const dates=getSerieTermine();
+    if(!dates.length){toast('⚠️ Keine Termine in der Vorschau!','var(--orange)','#fff');return;}
+    dates.forEach(d=>termine.push({begin:d.begin,ende:d.ende,thema,text,ort,serie:true}));
+    render(); toast(`🔁 ${dates.length} Serientermine angelegt`,'#9b5de5','#fff');
+  }
+
+  function resetSerie() {
+    $('s-thema').value=''; $('s-text').value=''; $('s-ort').value='';
+    $('s-bz').value='12:00'; $('s-ez').value='12:30';
+    $('s-von').value=`${yr}-01-01`; $('s-bis').value=`${yr}-12-31`;
+    updatePreview();
+  }
+
+  function saveTermin() {
+    const bd=$('beginDatum').value,bz=$('beginZeit').value,ed=$('endeDatum').value,ez=$('endeZeit').value;
+    const th=$('thema').value.trim(),tx=$('text').value.trim(),or=$('ort').value.trim();
+    if(!bd||!bz||!ed||!ez||!th||!or){toast('⚠️ Bitte alle Pflichtfelder (*) ausfüllen!','var(--orange)','#fff');return;}
+    const t={begin:toCSVDate(bd,bz),ende:toCSVDate(ed,ez),thema:th,text:tx,ort:or};
+    if(editIdx>=0){termine[editIdx]=t;editIdx=-1;toast('✏️ Termin aktualisiert');}
+    else{termine.push(t);toast('✅ Termin hinzugefügt');}
+    resetForm(); render();
+  }
+
+  function editTermin(i) {
+    const t=termine[i]; editIdx=i;
+    const b=fromCSVDate(t.begin),e=fromCSVDate(t.ende);
+    $('beginDatum').value=b.date;$('beginZeit').value=b.time;$('endeDatum').value=e.date;$('endeZeit').value=e.time;
+    $('thema').value=t.thema;$('text').value=t.text;$('ort').value=t.ort;
+    $('saveBtn').textContent='💾 Termin speichern';$('formTitle').textContent='Termin bearbeiten';
+    switchTab('einzel');
+  }
+
+  function deleteTermin(i) { termine.splice(i,1); if(editIdx===i)resetForm(); render(); toast('🗑 Termin gelöscht','var(--accent)','#fff'); }
+
+  function clearAll() {
+    if(!termine.length)return;
+    if(!confirm(`Alle ${termine.length} Termine löschen?`))return;
+    termine=[];resetForm();render();toast('🗑 Alle gelöscht','var(--accent)','#fff');
+  }
+
+  function resetForm() {
+    $('beginDatum').value=today;$('beginZeit').value='12:00';$('endeDatum').value=today;$('endeZeit').value='15:30';
+    $('thema').value='';$('text').value='';$('ort').value='';
+    $('saveBtn').textContent='＋ Termin hinzufügen';$('formTitle').textContent='Neuer Termin';editIdx=-1;
+  }
+
+  function exportCSV() {
+    if(!termine.length){toast('⚠️ Keine Termine vorhanden!','var(--orange)','#fff');return;}
+    const e2=v=>'"'+String(v).replace(/"/g,'""')+'"';
+    const csv=['"Begin","Ende","Thema","Text","Ort"',...termine.map(t=>[t.begin,t.ende,t.thema,t.text,t.ort].map(e2).join(','))].join('\r\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download='divera247-terminimport.csv'; a.click();
+    toast(`💾 ${termine.length} Termin(e) exportiert`);
+  }
+
+  function importCSV(){$('fileInput').click();}
+  function handleImport(e) {
+    const file=e.target.files[0]; if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const lines=ev.target.result.split(/\r?\n/).filter(l=>l.trim()); let count=0;
+      lines.slice(1).forEach(line=>{ const cols=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else cur+=c;}cols.push(cur); if(cols.length>=5){termine.push({begin:cols[0],ende:cols[1],thema:cols[2],text:cols[3],ort:cols[4]});count++;} });
+      render(); toast(`📂 ${count} Termin(e) importiert`);
+    };
+    reader.readAsText(file,'utf-8'); e.target.value='';
+  }
+
+  function render() {
+    $('badge').textContent=termine.length;
+    $('clearBtn').style.display=termine.length?'':'none';
+    if(!termine.length){$('listWrap').innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Noch keine Termine erfasst</div><div>Wähle eine Vorlage oder fülle das Formular links aus.</div></div>';return;}
+    const sorted=termine.map((t,i)=>({...t,_i:i})).sort((a,b)=>{const p=s=>{const[d,m,y]=s.split(' ')[0].split('.');return new Date(y,m-1,d);};return p(a.begin)-p(b.begin);});
+    $('listWrap').innerHTML='<div class="card-list">'+sorted.map(t=>`
+      <div class="card${t.serie?' sc':''}">
+        <div>
+          <div class="card-thema"><span class="dot${t.serie?' s':''}"></span>${esc(t.thema)}${t.serie?'&nbsp;<span class="stag">SERIE</span>':''}</div>
+          <div class="card-meta">
+            <div class="meta-item"><span class="meta-lbl">Von</span>${esc(t.begin)}</div>
+            <div class="meta-item"><span class="meta-lbl">Bis</span>${esc(t.ende)}</div>
+            <div class="meta-item"><span class="meta-lbl">Ort</span>${esc(t.ort)}</div>
+          </div>
+          ${t.text?`<div class="card-text">💬 ${esc(t.text)}</div>`:''}
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon" onclick="editTermin(${t._i})" title="Bearbeiten">✏️</button>
+          <button class="btn-icon del" onclick="deleteTermin(${t._i})" title="Löschen">🗑</button>
+        </div>
+      </div>`).join('')+'</div>';
+  }
+
+  document.querySelectorAll('input[type="text"]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
+  updatePreview();
+  render();
+</script>
+</body>
+</html>
