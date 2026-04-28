@@ -7,25 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg: #0c0e14;
-    --surface: #13161f;
-    --surface2: #1c2030;
-    --border: #252a3d;
-    --border2: #2e3450;
-    --accent: #e63946;
-    --accent-dim: rgba(230,57,70,0.15);
-    --blue: #3a86ff;
-    --blue-dim: rgba(58,134,255,0.12);
-    --green: #2dc653;
-    --orange: #f4a261;
-    --purple: #9b5de5;
-    --purple-dim: rgba(155,93,229,0.12);
-    --text: #e8eaf2;
-    --text-dim: #6b7194;
-    --text-mid: #9ba3c4;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-    --r: 8px;
+    --bg: #0c0e14; --surface: #13161f; --surface2: #1c2030;
+    --border: #252a3d; --border2: #2e3450;
+    --accent: #e63946; --accent-dim: rgba(230,57,70,0.15);
+    --blue: #3a86ff; --blue-dim: rgba(58,134,255,0.12);
+    --green: #2dc653; --orange: #f4a261;
+    --purple: #9b5de5; --purple-dim: rgba(155,93,229,0.12);
+    --text: #e8eaf2; --text-dim: #6b7194; --text-mid: #9ba3c4;
+    --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif; --r: 8px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
@@ -41,7 +30,7 @@
   .btn-red { background: var(--accent); color: #fff; }
   .btn-red:hover { background: #c1121f; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(230,57,70,0.4); }
   .btn-purple { background: var(--purple); color: #fff; }
-  .btn-purple:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(155,93,229,0.4); }
+  .btn-purple:hover { filter: brightness(1.15); transform: translateY(-1px); }
   .btn-ghost-white { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
   .btn-ghost-white:hover { background: rgba(255,255,255,0.25); }
   .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border2); }
@@ -73,7 +62,11 @@
   .form-group { margin-bottom: 12px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
-  input[type="date"], input[type="time"], input[type="text"], input[type="number"], textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r); color: var(--text); padding: 9px 11px; font-size: 13px; font-family: var(--sans); transition: border-color 0.15s, box-shadow 0.15s; outline: none; -webkit-appearance: none; }
+  input[type="date"], input[type="time"], input[type="text"], textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r);
+    color: var(--text); padding: 9px 11px; font-size: 13px; font-family: var(--sans);
+    transition: border-color 0.15s, box-shadow 0.15s; outline: none; -webkit-appearance: none;
+  }
   input:focus, textarea:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
   input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
   select option { background: var(--surface2); }
@@ -92,7 +85,7 @@
   .wo-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
   .wo-btn:hover:not(.active) { border-color: var(--blue); color: var(--blue); }
 
-  .serie-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; font-size: 12px; font-family: var(--mono); color: var(--text-mid); max-height: 130px; overflow-y: auto; margin-top: 6px; }
+  .serie-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; font-size: 12px; font-family: var(--mono); color: var(--text-mid); max-height: 120px; overflow-y: auto; margin-top: 6px; }
   .spi { padding: 3px 0; border-bottom: 1px solid var(--border); }
   .spi:last-child { border-bottom: none; }
 
@@ -111,15 +104,16 @@
   .card.sc { border-left: 3px solid var(--purple); }
   @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
   .card:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-  .card-thema { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .card-thema { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; box-shadow: 0 0 6px var(--accent); }
   .dot.s { background: var(--purple); box-shadow: 0 0 6px var(--purple); }
   .card-meta { display: flex; flex-direction: column; gap: 5px; }
   .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-mid); font-family: var(--mono); }
-  .meta-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dim); width: 38px; flex-shrink: 0; font-family: var(--sans); }
+  .meta-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dim); width: 44px; flex-shrink: 0; font-family: var(--sans); }
   .card-text { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); font-style: italic; }
   .card-actions { display: flex; flex-direction: column; gap: 4px; }
-  .stag { display:inline-block; background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; }
+  .stag { display:inline-block; background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); }
+  .gtag { display:inline-block; background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
   .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; pointer-events: none; }
   .toast.show { transform: translateY(0); opacity: 1; }
@@ -159,14 +153,14 @@
     <div class="sidebar-section">
       <div class="section-label">Schnellvorlagen</div>
       <div class="template-grid">
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5)"><span class="tpl-icon">🔧</span>Übungsdienst</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2)"><span class="tpl-icon">📋</span>Versammlung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4)"><span class="tpl-icon">📚</span>Schulung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Probealarm','','Gerätehaus',0.5)"><span class="tpl-icon">🚨</span>Probealarm</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Technische Hilfeleistung','','Einsatzort',2)"><span class="tpl-icon">⚙️</span>THL</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Jahreshauptversammlung','','Gerätehaus',3)"><span class="tpl-icon">🏛️</span>JHV</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Atemschutzübung','','Übungsgelände',3)"><span class="tpl-icon">😷</span>AGT-Übung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Fahrzeugkunde','','Wache',2)"><span class="tpl-icon">🚗</span>Fahrzeugkunde</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5,'')"><span class="tpl-icon">🔧</span>Übungsdienst</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2,'')"><span class="tpl-icon">📋</span>Versammlung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4,'')"><span class="tpl-icon">📚</span>Schulung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Probealarm','','Gerätehaus',0.5,'Probealarm')"><span class="tpl-icon">🚨</span>Probealarm</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Technische Hilfeleistung','','Einsatzort',2,'')"><span class="tpl-icon">⚙️</span>THL</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Jahreshauptversammlung','','Gerätehaus',3,'Vorstand')"><span class="tpl-icon">🏛️</span>JHV</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Atemschutzübung','','Übungsgelände',3,'Atemschutzgeräteträger')"><span class="tpl-icon">😷</span>AGT-Übung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Fahrzeugkunde','','Wache',2,'')"><span class="tpl-icon">🚗</span>Fahrzeugkunde</button>
         <button class="tpl-btn serie-tpl" style="grid-column:span 2" onclick="switchTab('serie');applySerieVorlage()"><span class="tpl-icon">🔁</span>Probealarm als Serientermin</button>
       </div>
     </div>
@@ -191,6 +185,36 @@
       <div class="form-group"><label>Thema *</label><input type="text" id="thema" placeholder="z.B. Übungsdienst …"/></div>
       <div class="form-group"><label>Text / Beschreibung</label><textarea id="text" placeholder="Zusätzliche Hinweise …"></textarea></div>
       <div class="form-group"><label>Ort *</label><input type="text" id="ort" placeholder="z.B. Wache, Gerätehaus …"/></div>
+      <div class="form-group">
+        <label>Gruppe (optional)</label>
+        <select id="gruppe">
+          <option value="">— keine Gruppe —</option>
+          <option>Absturzsicherung</option>
+          <option>Aggregat Feuerwehrhaus</option>
+          <option>Alarm-Info</option>
+          <option>Alarmierung</option>
+          <option>Alarmierung_Bürgermeister</option>
+          <option>Atemschutzgeräteträger</option>
+          <option>Ausbildungsgruppe</option>
+          <option>Fahrzeugbeschaffung</option>
+          <option>FFD Ausschuss</option>
+          <option>Flughelfer</option>
+          <option>Frauen_FFD</option>
+          <option>Gaufest2025</option>
+          <option>Gefahrgutzug</option>
+          <option>Gruppenführer</option>
+          <option>Jugendgruppe</option>
+          <option>Leistungsabzeichen_THL</option>
+          <option>Maschinisten</option>
+          <option>Motorsäge</option>
+          <option>Probealarm</option>
+          <option>SmokeAlarm</option>
+          <option>Social Media</option>
+          <option>Verwaltung</option>
+          <option>Vorstand</option>
+          <option>Wassermeister</option>
+        </select>
+      </div>
       <div class="form-actions">
         <button class="btn btn-red" onclick="saveTermin()" id="saveBtn" style="flex:1">＋&nbsp;Termin hinzufügen</button>
         <button class="btn btn-outline" onclick="resetForm()" title="Zurücksetzen">↺</button>
@@ -205,6 +229,36 @@
       <div class="form-group"><label>Thema *</label><input type="text" id="s-thema" placeholder="z.B. Probealarm"/></div>
       <div class="form-group"><label>Text / Beschreibung</label><textarea id="s-text" placeholder="Zusätzliche Hinweise …" style="min-height:44px"></textarea></div>
       <div class="form-group"><label>Ort *</label><input type="text" id="s-ort" placeholder="z.B. Gerätehaus"/></div>
+      <div class="form-group">
+        <label>Gruppe (optional)</label>
+        <select id="s-gruppe">
+          <option value="">— keine Gruppe —</option>
+          <option>Absturzsicherung</option>
+          <option>Aggregat Feuerwehrhaus</option>
+          <option>Alarm-Info</option>
+          <option>Alarmierung</option>
+          <option>Alarmierung_Bürgermeister</option>
+          <option>Atemschutzgeräteträger</option>
+          <option>Ausbildungsgruppe</option>
+          <option>Fahrzeugbeschaffung</option>
+          <option>FFD Ausschuss</option>
+          <option>Flughelfer</option>
+          <option>Frauen_FFD</option>
+          <option>Gaufest2025</option>
+          <option>Gefahrgutzug</option>
+          <option>Gruppenführer</option>
+          <option>Jugendgruppe</option>
+          <option>Leistungsabzeichen_THL</option>
+          <option>Maschinisten</option>
+          <option>Motorsäge</option>
+          <option>Probealarm</option>
+          <option>SmokeAlarm</option>
+          <option>Social Media</option>
+          <option>Verwaltung</option>
+          <option>Vorstand</option>
+          <option>Wassermeister</option>
+        </select>
+      </div>
 
       <div class="form-row">
         <div class="form-group"><label>Beginn Uhrzeit *</label><input type="time" id="s-bz" value="12:00" oninput="updatePreview()"/></div>
@@ -300,17 +354,19 @@
     });
   }
 
-  function applyTpl(thema,text,ort,h) {
+  function applyTpl(thema, text, ort, h, gruppe) {
     $('thema').value=thema; $('text').value=text; $('ort').value=ort;
     const [bh,bm]=($('beginZeit').value||'12:00').split(':').map(Number);
     const tot=bh*60+bm+Math.round(h*60);
     $('endeZeit').value=pad(Math.floor(tot/60)%24)+':'+pad(tot%60);
     $('endeDatum').value=$('beginDatum').value;
+    $('gruppe').value=gruppe||'';
   }
 
   function applySerieVorlage() {
     $('s-thema').value='Probealarm'; $('s-text').value=''; $('s-ort').value='Gerätehaus';
     $('s-bz').value='12:00'; $('s-ez').value='12:30';
+    $('s-gruppe').value='Probealarm';
     document.querySelectorAll('.wt-btn').forEach(b=>b.classList.remove('active'));
     document.querySelector('.wt-btn[data-wt="6"]').classList.add('active');
     document.querySelectorAll('.wo-btn').forEach(b=>b.classList.add('active'));
@@ -335,7 +391,7 @@
         const occ=[];
         const dim=new Date(y,m+1,0).getDate();
         for (let d=1;d<=dim;d++) { const day=new Date(y,m,d); if(day.getDay()===wt) occ.push(day); }
-        wos.forEach(nth=>{ if(nth<=occ.length){ const day=occ[nth-1]; if(day>=start&&day<=end){ const iso=`${day.getFullYear()}-${pad(day.getMonth()+1)}-${pad(day.getDate())}`; result.push({iso,begin:toCSVDate(iso,bz),ende:toCSVDate(iso,ez)}); } }});
+        wos.forEach(nth=>{ if(nth<=occ.length){ const day=occ[nth-1]; if(day>=start&&day<=end){ const iso=`${day.getFullYear()}-${pad(day.getMonth()+1)}-${pad(day.getDate())}`; result.push({iso,begin:toCSVDate(iso,bz),ende:toCSVDate(iso,ez)}); }}});
       });
       cur.setMonth(cur.getMonth()+1);
     }
@@ -352,26 +408,26 @@
   }
 
   function addSerie() {
-    const thema=$('s-thema').value.trim(), text=$('s-text').value.trim(), ort=$('s-ort').value.trim();
+    const thema=$('s-thema').value.trim(), text=$('s-text').value.trim(), ort=$('s-ort').value.trim(), gruppe=$('s-gruppe').value;
     if(!thema||!ort||!$('s-von').value||!$('s-bis').value){toast('⚠️ Bitte alle Pflichtfelder ausfüllen!','var(--orange)','#fff');return;}
     const dates=getSerieTermine();
     if(!dates.length){toast('⚠️ Keine Termine in der Vorschau!','var(--orange)','#fff');return;}
-    dates.forEach(d=>termine.push({begin:d.begin,ende:d.ende,thema,text,ort,serie:true}));
+    dates.forEach(d=>termine.push({begin:d.begin,ende:d.ende,thema,text,ort,gruppe,serie:true}));
     render(); toast(`🔁 ${dates.length} Serientermine angelegt`,'#9b5de5','#fff');
   }
 
   function resetSerie() {
-    $('s-thema').value=''; $('s-text').value=''; $('s-ort').value='';
+    $('s-thema').value=''; $('s-text').value=''; $('s-ort').value=''; $('s-gruppe').value='';
     $('s-bz').value='12:00'; $('s-ez').value='12:30';
     $('s-von').value=`${yr}-01-01`; $('s-bis').value=`${yr}-12-31`;
     updatePreview();
   }
 
   function saveTermin() {
-    const bd=$('beginDatum').value,bz=$('beginZeit').value,ed=$('endeDatum').value,ez=$('endeZeit').value;
-    const th=$('thema').value.trim(),tx=$('text').value.trim(),or=$('ort').value.trim();
+    const bd=$('beginDatum').value, bz=$('beginZeit').value, ed=$('endeDatum').value, ez=$('endeZeit').value;
+    const th=$('thema').value.trim(), tx=$('text').value.trim(), or=$('ort').value.trim(), gr=$('gruppe').value;
     if(!bd||!bz||!ed||!ez||!th||!or){toast('⚠️ Bitte alle Pflichtfelder (*) ausfüllen!','var(--orange)','#fff');return;}
-    const t={begin:toCSVDate(bd,bz),ende:toCSVDate(ed,ez),thema:th,text:tx,ort:or};
+    const t={begin:toCSVDate(bd,bz),ende:toCSVDate(ed,ez),thema:th,text:tx,ort:or,gruppe:gr};
     if(editIdx>=0){termine[editIdx]=t;editIdx=-1;toast('✏️ Termin aktualisiert');}
     else{termine.push(t);toast('✅ Termin hinzugefügt');}
     resetForm(); render();
@@ -379,10 +435,12 @@
 
   function editTermin(i) {
     const t=termine[i]; editIdx=i;
-    const b=fromCSVDate(t.begin),e=fromCSVDate(t.ende);
-    $('beginDatum').value=b.date;$('beginZeit').value=b.time;$('endeDatum').value=e.date;$('endeZeit').value=e.time;
-    $('thema').value=t.thema;$('text').value=t.text;$('ort').value=t.ort;
-    $('saveBtn').textContent='💾 Termin speichern';$('formTitle').textContent='Termin bearbeiten';
+    const b=fromCSVDate(t.begin), e=fromCSVDate(t.ende);
+    $('beginDatum').value=b.date; $('beginZeit').value=b.time;
+    $('endeDatum').value=e.date; $('endeZeit').value=e.time;
+    $('thema').value=t.thema; $('text').value=t.text; $('ort').value=t.ort;
+    $('gruppe').value=t.gruppe||'';
+    $('saveBtn').textContent='💾 Termin speichern'; $('formTitle').textContent='Termin bearbeiten';
     switchTab('einzel');
   }
 
@@ -395,16 +453,21 @@
   }
 
   function resetForm() {
-    $('beginDatum').value=today;$('beginZeit').value='12:00';$('endeDatum').value=today;$('endeZeit').value='15:30';
-    $('thema').value='';$('text').value='';$('ort').value='';
-    $('saveBtn').textContent='＋ Termin hinzufügen';$('formTitle').textContent='Neuer Termin';editIdx=-1;
+    $('beginDatum').value=today; $('beginZeit').value='12:00';
+    $('endeDatum').value=today; $('endeZeit').value='15:30';
+    $('thema').value=''; $('text').value=''; $('ort').value=''; $('gruppe').value='';
+    $('saveBtn').textContent='＋ Termin hinzufügen'; $('formTitle').textContent='Neuer Termin'; editIdx=-1;
   }
 
   function exportCSV() {
     if(!termine.length){toast('⚠️ Keine Termine vorhanden!','var(--orange)','#fff');return;}
-    const e2=v=>'"'+String(v).replace(/"/g,'""')+'"';
-    const csv=['"Begin","Ende","Thema","Text","Ort"',...termine.map(t=>[t.begin,t.ende,t.thema,t.text,t.ort].map(e2).join(','))].join('\r\n');
-    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download='divera247-terminimport.csv'; a.click();
+    const e2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+    const csv=['"Begin","Ende","Thema","Text","Ort","Gruppe"',
+      ...termine.map(t=>[t.begin,t.ende,t.thema,t.text,t.ort,t.gruppe||''].map(e2).join(','))
+    ].join('\r\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+    a.download='divera247-terminimport.csv'; a.click();
     toast(`💾 ${termine.length} Termin(e) exportiert`);
   }
 
@@ -414,7 +477,12 @@
     const reader=new FileReader();
     reader.onload=ev=>{
       const lines=ev.target.result.split(/\r?\n/).filter(l=>l.trim()); let count=0;
-      lines.slice(1).forEach(line=>{ const cols=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else cur+=c;}cols.push(cur); if(cols.length>=5){termine.push({begin:cols[0],ende:cols[1],thema:cols[2],text:cols[3],ort:cols[4]});count++;} });
+      lines.slice(1).forEach(line=>{
+        const cols=[];let cur='',inQ=false;
+        for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else cur+=c;}
+        cols.push(cur);
+        if(cols.length>=5){termine.push({begin:cols[0],ende:cols[1],thema:cols[2],text:cols[3],ort:cols[4],gruppe:cols[5]||''});count++;}
+      });
       render(); toast(`📂 ${count} Termin(e) importiert`);
     };
     reader.readAsText(file,'utf-8'); e.target.value='';
@@ -423,12 +491,23 @@
   function render() {
     $('badge').textContent=termine.length;
     $('clearBtn').style.display=termine.length?'':'none';
-    if(!termine.length){$('listWrap').innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Noch keine Termine erfasst</div><div>Wähle eine Vorlage oder fülle das Formular links aus.</div></div>';return;}
-    const sorted=termine.map((t,i)=>({...t,_i:i})).sort((a,b)=>{const p=s=>{const[d,m,y]=s.split(' ')[0].split('.');return new Date(y,m-1,d);};return p(a.begin)-p(b.begin);});
+    if(!termine.length){
+      $('listWrap').innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Noch keine Termine erfasst</div><div>Wähle eine Vorlage oder fülle das Formular links aus.</div></div>';
+      return;
+    }
+    const sorted=termine.map((t,i)=>({...t,_i:i})).sort((a,b)=>{
+      const p=s=>{const[d,m,y]=s.split(' ')[0].split('.');return new Date(y,m-1,d);};
+      return p(a.begin)-p(b.begin);
+    });
     $('listWrap').innerHTML='<div class="card-list">'+sorted.map(t=>`
       <div class="card${t.serie?' sc':''}">
         <div>
-          <div class="card-thema"><span class="dot${t.serie?' s':''}"></span>${esc(t.thema)}${t.serie?'&nbsp;<span class="stag">SERIE</span>':''}</div>
+          <div class="card-thema">
+            <span class="dot${t.serie?' s':''}"></span>
+            ${esc(t.thema)}
+            ${t.serie?'<span class="stag">SERIE</span>':''}
+            ${t.gruppe?`<span class="gtag">👥 ${esc(t.gruppe)}</span>`:''}
+          </div>
           <div class="card-meta">
             <div class="meta-item"><span class="meta-lbl">Von</span>${esc(t.begin)}</div>
             <div class="meta-item"><span class="meta-lbl">Bis</span>${esc(t.ende)}</div>
