@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DIVERA 24/7 – Terminerfassung</title>
+<title>DIVERA 24/7 Terminerfassung – Feuerwehr Degerndorf</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -161,13 +161,50 @@
   .m-slot-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 0 4px; border-radius: 4px; }
   .m-slot-remove:hover { color: var(--accent); background: var(--accent-dim); }
 
+
+  /* ── Konfig Modal ── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .modal { background:var(--surface); border:1px solid var(--border2); border-radius:14px; width:680px; max-width:95vw; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.6); animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .modal-header { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .modal-title { font-size:16px; font-weight:800; display:flex; align-items:center; gap:10px; }
+  .modal-close { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:20px; padding:4px 8px; border-radius:6px; transition:all 0.15s; }
+  .modal-close:hover { background:var(--accent-dim); color:var(--accent); }
+  .modal-tabs { display:flex; gap:2px; padding:10px 16px 0; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .modal-tab { padding:8px 16px; border:none; border-radius:6px 6px 0 0; font-family:var(--sans); font-size:12px; font-weight:700; cursor:pointer; color:var(--text-dim); background:transparent; transition:all 0.15s; border-bottom:2px solid transparent; }
+  .modal-tab.active { color:var(--text); border-bottom-color:var(--accent); background:var(--surface2); }
+  .modal-tab:hover:not(.active) { color:var(--text-mid); }
+  .modal-body { flex:1; overflow-y:auto; padding:20px 24px; }
+  .modal-footer { padding:14px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; }
+  .modal-section { display:none; }
+  .modal-section.active { display:block; }
+
+  /* Konfig Einträge */
+  .cfg-list { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; max-height:260px; overflow-y:auto; }
+  .cfg-item { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); border-radius:var(--r); padding:8px 12px; }
+  .cfg-item-icon { font-size:16px; flex-shrink:0; }
+  .cfg-item-name { flex:1; font-size:13px; color:var(--text); }
+  .cfg-item-actions { display:flex; gap:4px; flex-shrink:0; }
+  .cfg-btn { padding:4px 8px; border-radius:5px; border:1px solid var(--border2); background:transparent; font-size:11px; font-weight:600; cursor:pointer; font-family:var(--sans); transition:all 0.15s; color:var(--text-dim); }
+  .cfg-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-dim); }
+  .cfg-btn.del:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-dim); }
+  .cfg-add-row { display:flex; gap:8px; align-items:center; padding-top:10px; border-top:1px solid var(--border); }
+  .cfg-add-row input, .cfg-add-row select { flex:1; }
+
+  /* Schnellvorlagen Konfig */
+  .tpl-cfg-item { display:grid; grid-template-columns:36px 1fr 1fr 80px 80px auto; gap:6px; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:var(--r); padding:8px 10px; margin-bottom:6px; }
+  .tpl-cfg-icon { font-size:18px; text-align:center; cursor:pointer; }
+  .tpl-cfg-item input, .tpl-cfg-item select { font-size:12px; padding:5px 8px; }
+  .cfg-info { font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.5; }
+
   .version-dot { width: 6px; height: 6px; border-radius: 50%; background: #2dc653; box-shadow: 0 0 5px #2dc653; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
 <script>
-  const APP_VERSION = '1.5.1';
+  const APP_VERSION = '1.6.1';
   const APP_DATE    = '2026-05-01';
 </script>
 
@@ -175,12 +212,13 @@
   <div class="header-brand">
     <div class="header-icon">🚒</div>
     <div>
-      <div class="header-title">DIVERA 24/7 – Terminerfassung</div>
-      <div class="header-sub">Termine standardisiert erfassen &amp; exportieren</div>
+      <div class="header-title">DIVERA 24/7 Terminerfassung</div>
+      <div class="header-sub">Feuerwehr Degerndorf</div>
     </div>
   </div>
   <div class="header-actions">
     <span class="version-badge" title="Versionsstand"><span class="version-dot"></span>v<span id="versionLabel"></span></span>
+    <button class="btn btn-ghost-white btn-sm" onclick="openKonfig()">⚙️ Konfiguration</button>
     <button class="btn btn-ghost-white btn-sm" onclick="importCSV()">📂 Importieren</button>
     <button class="btn btn-ghost-white btn-sm" onclick="exportCSV()">💾 CSV Export</button>
   </div>
@@ -192,7 +230,7 @@
     <!-- Schnellvorlagen -->
     <div class="sidebar-section">
       <div class="section-label">Schnellvorlagen</div>
-      <div class="template-grid">
+      <div class="template-grid" id="schnellvorlagen-grid">
         <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5,'gruppe','')"><span class="tpl-icon">🔧</span>Übungsdienst</button>
         <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2,'gruppe','')"><span class="tpl-icon">📋</span>Versammlung</button>
         <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4,'gruppe','')"><span class="tpl-icon">📚</span>Schulung</button>
@@ -430,6 +468,82 @@
       <div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Noch keine Termine erfasst</div><div>Wähle eine Vorlage oder fülle das Formular links aus.</div></div>
     </div>
   </main>
+</div>
+
+<!-- ── Konfigurations-Modal ── -->
+<div class="modal-overlay" id="konfigModal" style="display:none" onclick="if(event.target===this)closeKonfig()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Konfiguration</div>
+      <button class="modal-close" onclick="closeKonfig()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="ktab-gruppen" onclick="switchKTab('gruppen')">👥 Gruppen</button>
+      <button class="modal-tab" id="ktab-personen" onclick="switchKTab('personen')">🧑‍🚒 Personen</button>
+      <button class="modal-tab" id="ktab-vorlagen" onclick="switchKTab('vorlagen')">⚡ Schnellvorlagen</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Gruppen -->
+      <div class="modal-section active" id="ksec-gruppen">
+        <p class="cfg-info">Gruppen verwalten – diese erscheinen in allen Dropdown-Listen der App.</p>
+        <div class="cfg-list" id="cfg-gruppen-list"></div>
+        <div class="cfg-add-row">
+          <input type="text" id="cfg-neue-gruppe" placeholder="Neuer Gruppenname …" onkeydown="if(event.key==='Enter')addKGruppe()"/>
+          <button class="btn btn-red btn-sm" onclick="addKGruppe()">＋ Hinzufügen</button>
+        </div>
+      </div>
+
+      <!-- Personen -->
+      <div class="modal-section" id="ksec-personen">
+        <p class="cfg-info">Personen verwalten – diese erscheinen in der Aktive-Auswahl.</p>
+        <div style="margin-bottom:10px"><input type="text" id="cfg-personen-search" placeholder="🔍 Suchen …" oninput="renderKPersonen()" style="width:100%"/></div>
+        <div class="cfg-list" id="cfg-personen-list"></div>
+        <div class="cfg-add-row">
+          <input type="text" id="cfg-neue-person" placeholder="Vorname Nachname …" onkeydown="if(event.key==='Enter')addKPerson()"/>
+          <button class="btn btn-red btn-sm" onclick="addKPerson()">＋ Hinzufügen</button>
+        </div>
+      </div>
+
+      <!-- Schnellvorlagen -->
+      <div class="modal-section" id="ksec-vorlagen">
+        <p class="cfg-info">Schnellvorlagen konfigurieren – Klick auf das Emoji wählt ein neues Icon. Änderungen werden sofort übernommen.</p>
+        <div id="cfg-vorlagen-list"></div>
+        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:4px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Neue Vorlage</div>
+          <div style="display:grid;grid-template-columns:36px 1fr 1fr 80px 80px auto;gap:6px;align-items:center">
+            <input type="text" id="tpl-new-icon" value="📌" style="text-align:center;font-size:16px;padding:5px 4px"/>
+            <input type="text" id="tpl-new-name" placeholder="Thema"/>
+            <input type="text" id="tpl-new-ort" placeholder="Ort"/>
+            <input type="time" id="tpl-new-bzeit" value="12:00"/>
+            <input type="time" id="tpl-new-ezeit" value="15:00"/>
+            <button class="btn btn-red btn-sm" onclick="addKVorlage()">＋</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeKonfig()">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit-Dialog -->
+<div class="modal-overlay" id="editDialog" style="display:none" onclick="if(event.target===this)closeEdit()">
+  <div class="modal" style="width:360px;max-height:auto">
+    <div class="modal-header">
+      <div class="modal-title" id="editDialogTitle">Bearbeiten</div>
+      <button class="modal-close" onclick="closeEdit()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px">
+      <div class="form-group"><label id="editDialogLabel">Name</label><input type="text" id="editDialogInput"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEdit()">Abbrechen</button>
+      <button class="btn btn-red" onclick="saveEdit()">💾 Speichern</button>
+    </div>
+  </div>
 </div>
 
 <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="handleImport(event)"/>
@@ -863,9 +977,253 @@
   // Init multi slots display
   renderMultiSlots();
 
+
+  // ════════════════════════════════════════════
+  // KONFIGURATION
+  // ════════════════════════════════════════════
+
+  // Gruppen & Personen aus den Konstanten initialisieren
+  let CFG_GRUPPEN = [
+    'Absturzsicherung','Aggregat Feuerwehrhaus','Alarm-Info','Alarmierung',
+    'Alarmierung_Bürgermeister','Atemschutzgeräteträger','Ausbildungsgruppe',
+    'Fahrzeugbeschaffung','FFD Ausschuss','Flughelfer','Frauen_FFD','Gaufest2025',
+    'Gefahrgutzug','Gruppenführer','Jugendgruppe','Leistungsabzeichen_THL',
+    'Maschinisten','Motorsäge','Probealarm','SmokeAlarm','Social Media',
+    'Verwaltung','Vorstand','Wassermeister'
+  ];
+
+  let CFG_PERSONEN = [...AKTIVE];
+
+  let CFG_VORLAGEN = [
+    { icon:'🔧', name:'Übungsdienst', text:'Thema folgt', ort:'Wache',   bzeit:'12:00', ezeit:'15:30', gruppe:'' },
+    { icon:'📋', name:'Versammlung',  text:'',            ort:'Gerätehaus', bzeit:'12:00', ezeit:'14:00', gruppe:'' },
+    { icon:'📚', name:'Schulung',     text:'',            ort:'Gerätehaus', bzeit:'12:00', ezeit:'16:00', gruppe:'' },
+    { icon:'🚨', name:'Probealarm',   text:'',            ort:'Gerätehaus', bzeit:'12:00', ezeit:'12:30', gruppe:'Probealarm' },
+    { icon:'⚙️', name:'Technische Hilfeleistung', text:'', ort:'Einsatzort', bzeit:'12:00', ezeit:'14:00', gruppe:'' },
+    { icon:'🏛️', name:'Jahreshauptversammlung',   text:'', ort:'Gerätehaus', bzeit:'12:00', ezeit:'15:00', gruppe:'Vorstand' },
+    { icon:'😷', name:'Atemschutzübung', text:'',         ort:'Übungsgelände', bzeit:'12:00', ezeit:'15:00', gruppe:'Atemschutzgeräteträger' },
+    { icon:'🚗', name:'Fahrzeugkunde',   text:'',         ort:'Wache',     bzeit:'12:00', ezeit:'14:00', gruppe:'' },
+  ];
+
+  let editCallback = null;
+
+  function openKonfig() {
+    $('konfigModal').style.display = 'flex';
+    switchKTab('gruppen');
+  }
+  function closeKonfig() {
+    $('konfigModal').style.display = 'none';
+    applyKonfig();
+  }
+
+  function switchKTab(tab) {
+    ['gruppen','personen','vorlagen'].forEach(t => {
+      $('ktab-'+t).classList.toggle('active', t===tab);
+      $('ksec-'+t).classList.toggle('active', t===tab);
+    });
+    if(tab==='gruppen') renderKGruppen();
+    if(tab==='personen') renderKPersonen();
+    if(tab==='vorlagen') renderKVorlagen();
+  }
+
+  // ── Gruppen ──
+  function renderKGruppen() {
+    $('cfg-gruppen-list').innerHTML = CFG_GRUPPEN.map((g,i) => `
+      <div class="cfg-item">
+        <span class="cfg-item-icon">👥</span>
+        <span class="cfg-item-name">${esc(g)}</span>
+        <div class="cfg-item-actions">
+          <button class="cfg-btn" onclick="editKGruppe(${i})">✏️ Bearbeiten</button>
+          <button class="cfg-btn del" onclick="deleteKGruppe(${i})">🗑 Löschen</button>
+        </div>
+      </div>`).join('');
+  }
+  function addKGruppe() {
+    const val = $('cfg-neue-gruppe').value.trim();
+    if(!val) return;
+    if(CFG_GRUPPEN.includes(val)) { toast('Gruppe existiert bereits','var(--orange)','#fff'); return; }
+    CFG_GRUPPEN.push(val);
+    CFG_GRUPPEN.sort();
+    $('cfg-neue-gruppe').value = '';
+    renderKGruppen();
+  }
+  function deleteKGruppe(i) {
+    if(!confirm('Gruppe „'+CFG_GRUPPEN[i]+'" löschen?')) return;
+    CFG_GRUPPEN.splice(i,1);
+    renderKGruppen();
+  }
+  function editKGruppe(i) {
+    openEdit('Gruppe bearbeiten', 'Gruppenname', CFG_GRUPPEN[i], val => {
+      CFG_GRUPPEN[i] = val;
+      CFG_GRUPPEN.sort();
+      renderKGruppen();
+    });
+  }
+
+  // ── Personen ──
+  function renderKPersonen() {
+    const search = ($('cfg-personen-search').value||'').toLowerCase();
+    const filtered = CFG_PERSONEN.filter(p => p.toLowerCase().includes(search));
+    $('cfg-personen-list').innerHTML = filtered.map(p => {
+      const i = CFG_PERSONEN.indexOf(p);
+      return `<div class="cfg-item">
+        <span class="cfg-item-icon">🧑‍🚒</span>
+        <span class="cfg-item-name">${esc(p)}</span>
+        <div class="cfg-item-actions">
+          <button class="cfg-btn" onclick="editKPerson(${i})">✏️ Bearbeiten</button>
+          <button class="cfg-btn del" onclick="deleteKPerson(${i})">🗑 Löschen</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function addKPerson() {
+    const val = $('cfg-neue-person').value.trim();
+    if(!val) return;
+    if(CFG_PERSONEN.includes(val)) { toast('Person existiert bereits','var(--orange)','#fff'); return; }
+    CFG_PERSONEN.push(val);
+    CFG_PERSONEN.sort((a,b) => a.split(' ').pop().localeCompare(b.split(' ').pop()));
+    $('cfg-neue-person').value = '';
+    renderKPersonen();
+  }
+  function deleteKPerson(i) {
+    if(!confirm('Person „'+CFG_PERSONEN[i]+'" löschen?')) return;
+    CFG_PERSONEN.splice(i,1);
+    renderKPersonen();
+  }
+  function editKPerson(i) {
+    openEdit('Person bearbeiten', 'Name (Vorname Nachname)', CFG_PERSONEN[i], val => {
+      CFG_PERSONEN[i] = val;
+      CFG_PERSONEN.sort((a,b) => a.split(' ').pop().localeCompare(b.split(' ').pop()));
+      renderKPersonen();
+    });
+  }
+
+  // ── Schnellvorlagen ──
+  const EMOJI_LIST = ['🔧','📋','📚','🚨','⚙️','🏛️','😷','🚗','🔁','📅','🎯','🔴','🟠','🟡','🟢','🔵','⭐','🏆','📌','🗓️','🚒','🚑','🛡️','⚡','🔔','📢','👥','🧑‍🚒','🏠','🌲'];
+
+  function renderKVorlagen() {
+    $('cfg-vorlagen-list').innerHTML = CFG_VORLAGEN.map((v,i) => `
+      <div class="tpl-cfg-item" id="tpl-cfg-${i}">
+        <div class="tpl-cfg-icon" onclick="pickEmoji(${i})" title="Emoji wählen">${v.icon}</div>
+        <input type="text" value="${esc(v.name)}" placeholder="Thema" oninput="CFG_VORLAGEN[${i}].name=this.value"/>
+        <input type="text" value="${esc(v.ort)}" placeholder="Ort" oninput="CFG_VORLAGEN[${i}].ort=this.value"/>
+        <input type="time" value="${v.bzeit}" oninput="CFG_VORLAGEN[${i}].bzeit=this.value"/>
+        <input type="time" value="${v.ezeit}" oninput="CFG_VORLAGEN[${i}].ezeit=this.value"/>
+        <button class="cfg-btn del" onclick="deleteKVorlage(${i})">🗑</button>
+      </div>`).join('') +
+      '<div style="display:grid;grid-template-columns:36px 1fr 1fr 80px 80px;gap:6px;padding:6px 0;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px"><span style="text-align:center">Icon</span><span>Thema</span><span>Ort</span><span>Beginn</span><span>Ende</span></div>';
+  }
+
+  function deleteKVorlage(i) {
+    if(!confirm('Vorlage „'+CFG_VORLAGEN[i].name+'" löschen?')) return;
+    CFG_VORLAGEN.splice(i,1);
+    renderKVorlagen();
+  }
+
+  function addKVorlage() {
+    const icon  = $('tpl-new-icon').value.trim() || '📌';
+    const name  = $('tpl-new-name').value.trim();
+    const ort   = $('tpl-new-ort').value.trim();
+    const bzeit = $('tpl-new-bzeit').value;
+    const ezeit = $('tpl-new-ezeit').value;
+    if(!name || !ort) { toast('Thema und Ort sind Pflichtfelder','var(--orange)','#fff'); return; }
+    CFG_VORLAGEN.push({ icon, name, text:'', ort, bzeit, ezeit, gruppe:'' });
+    $('tpl-new-name').value = ''; $('tpl-new-ort').value = '';
+    renderKVorlagen();
+  }
+
+  function pickEmoji(i) {
+    const existing = document.getElementById('emoji-picker');
+    if(existing) existing.remove();
+    const picker = document.createElement('div');
+    picker.id = 'emoji-picker';
+    picker.style.cssText = 'position:fixed;z-index:2000;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.5)';
+    EMOJI_LIST.forEach(e => {
+      const btn = document.createElement('button');
+      btn.textContent = e;
+      btn.style.cssText = 'background:none;border:none;font-size:20px;cursor:pointer;padding:4px;border-radius:6px;transition:background 0.1s';
+      btn.onmouseenter = () => btn.style.background = 'var(--surface2)';
+      btn.onmouseleave = () => btn.style.background = 'none';
+      btn.onclick = () => {
+        CFG_VORLAGEN[i].icon = e;
+        renderKVorlagen();
+        picker.remove();
+      };
+      picker.appendChild(btn);
+    });
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕ Schließen';
+    closeBtn.style.cssText = 'width:100%;background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text-dim);font-size:12px;padding:6px;cursor:pointer;margin-top:4px;font-family:var(--sans)';
+    closeBtn.onclick = () => picker.remove();
+    picker.appendChild(closeBtn);
+    const slot = document.getElementById('tpl-cfg-'+i);
+    slot.style.position = 'relative';
+    slot.appendChild(picker);
+  }
+
+  // ── Edit Dialog ──
+  function openEdit(title, label, value, callback) {
+    $('editDialogTitle').textContent = title;
+    $('editDialogLabel').textContent = label;
+    $('editDialogInput').value = value;
+    editCallback = callback;
+    $('editDialog').style.display = 'flex';
+    setTimeout(() => $('editDialogInput').focus(), 50);
+  }
+  function closeEdit() { $('editDialog').style.display = 'none'; editCallback = null; }
+  function saveEdit() {
+    const val = $('editDialogInput').value.trim();
+    if(!val) return;
+    if(editCallback) editCallback(val);
+    closeEdit();
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') { closeKonfig(); closeEdit(); } });
+
+  // ── Apply: Konfig in App übernehmen ──
+  function applyKonfig() {
+    // Schnellvorlagen neu rendern
+    renderSchnellvorlagen();
+    // Gruppen-Dropdowns aktualisieren
+    updateGruppenDropdowns();
+    // Personen-Listen aktualisieren
+    // (AKTIVE array ableiten von CFG_PERSONEN)
+    AKTIVE.length = 0;
+    CFG_PERSONEN.forEach(p => AKTIVE.push(p));
+  }
+
+  function updateGruppenDropdowns() {
+    const opts = '<option value="">— keine Gruppe —</option>' +
+      CFG_GRUPPEN.map(g => '<option>'+esc(g)+'</option>').join('');
+    ['gruppe','s-gruppe','m-gruppe'].forEach(id => {
+      const el = $(id);
+      if(el) { const cur = el.value; el.innerHTML = opts; el.value = cur; }
+    });
+  }
+
+  function renderSchnellvorlagen() {
+    const grid = document.getElementById('schnellvorlagen-grid');
+    if(!grid) return;
+    grid.innerHTML = CFG_VORLAGEN.map(v => {
+      const h = calcHours(v.bzeit, v.ezeit);
+      return '<button class="tpl-btn" onclick="switchTab(\'einzel\');applyTpl(\''+escQ(v.name)+'\',\''+escQ(v.text)+'\',\''+escQ(v.ort)+'\','+h+',\'gruppe\',\''+escQ(v.gruppe || '')+'\')">'+
+        '<span class="tpl-icon">'+v.icon+'</span>'+esc(v.name)+'</button>';
+    }).join('') +
+    '<button class="tpl-btn serie-tpl" style="grid-column:span 2" onclick="switchTab(\'serie\');applySerieVorlage()"><span class="tpl-icon">🔁</span>Probealarm als Serientermin</button>';
+  }
+
+  function calcHours(bzeit, ezeit) {
+    const [bh,bm] = bzeit.split(':').map(Number);
+    const [eh,em] = ezeit.split(':').map(Number);
+    return ((eh*60+em) - (bh*60+bm)) / 60;
+  }
+
+  function escQ(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
   document.querySelectorAll('input[type="text"]:not(#aktiveSearch):not(#s-aktiveSearch):not(#m-aktiveSearch)').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
   updatePreview();
   render();
+  renderSchnellvorlagen();
+  updateGruppenDropdowns();
 </script>
 </body>
 </html>
