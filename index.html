@@ -155,13 +155,19 @@
     cursor: default;
     white-space: nowrap;
   }
+  /* ── Mehrfachtermin Slots ── */
+  .m-slot { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 12px; margin-bottom: 8px; position: relative; }
+  .m-slot-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 11px; font-weight: 700; color: var(--teal); }
+  .m-slot-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 0 4px; border-radius: 4px; }
+  .m-slot-remove:hover { color: var(--accent); background: var(--accent-dim); }
+
   .version-dot { width: 6px; height: 6px; border-radius: 50%; background: #2dc653; box-shadow: 0 0 5px #2dc653; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
 <script>
-  const APP_VERSION = '1.4.0';
+  const APP_VERSION = '1.5.1';
   const APP_DATE    = '2026-05-01';
 </script>
 
@@ -203,6 +209,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" id="tab-einzel" onclick="switchTab('einzel')">📅 Einzeltermin</button>
       <button class="tab-btn" id="tab-serie" onclick="switchTab('serie')">🔁 Serientermin</button>
+      <button class="tab-btn" id="tab-multi" onclick="switchTab('multi')">📋 Mehrfachtermin</button>
     </div>
 
     <!-- Einzeltermin -->
@@ -349,6 +356,66 @@
       </div>
     </div>
 
+
+    <!-- Mehrfachtermin -->
+    <div class="tab-panel sidebar-section" id="panel-multi" style="flex:1">
+      <div class="section-label">Mehrfachtermin – mehrere Termine für Aktive</div>
+      <div class="serie-info" style="background:var(--teal-dim);border-color:var(--teal)"><span>📋</span><span>Wähle Aktive aus und erfasse bis zu 10 Termine auf einmal. Jeder Termin wird einzeln angelegt.</span></div>
+
+      <div class="form-group"><label>Thema *</label><input type="text" id="m-thema" placeholder="z.B. Übungsdienst …"/></div>
+      <div class="form-group"><label>Text / Beschreibung</label><textarea id="m-text" placeholder="Zusätzliche Hinweise …" style="min-height:40px"></textarea></div>
+      <div class="form-group"><label>Ort *</label><input type="text" id="m-ort" placeholder="z.B. Gerätehaus"/></div>
+
+      <!-- Gruppe / Aktive Toggle -->
+      <div class="form-group">
+        <label>Zuweisung *</label>
+        <div class="gruppe-mode-toggle">
+          <button class="mode-btn active-mode" id="m-modeGruppe" onclick="setMultiMode('gruppe')">👥 Gruppe</button>
+          <button class="mode-btn" id="m-modeAktive" onclick="setMultiMode('aktive')">🧑‍🚒 Aktive</button>
+        </div>
+        <!-- Gruppe Dropdown -->
+        <div id="m-gruppePanel">
+          <select id="m-gruppe">
+            <option value="">— keine Gruppe —</option>
+            <option>Absturzsicherung</option><option>Aggregat Feuerwehrhaus</option>
+            <option>Alarm-Info</option><option>Alarmierung</option>
+            <option>Alarmierung_Bürgermeister</option><option>Atemschutzgeräteträger</option>
+            <option>Ausbildungsgruppe</option><option>Fahrzeugbeschaffung</option>
+            <option>FFD Ausschuss</option><option>Flughelfer</option>
+            <option>Frauen_FFD</option><option>Gaufest2025</option>
+            <option>Gefahrgutzug</option><option>Gruppenführer</option>
+            <option>Jugendgruppe</option><option>Leistungsabzeichen_THL</option>
+            <option>Maschinisten</option><option>Motorsäge</option>
+            <option>Probealarm</option><option>SmokeAlarm</option>
+            <option>Social Media</option><option>Verwaltung</option>
+            <option>Vorstand</option><option>Wassermeister</option>
+          </select>
+        </div>
+        <!-- Aktive Multi-Select -->
+        <div id="m-aktivePanel" style="display:none">
+          <div class="aktive-search"><input type="text" id="m-aktiveSearch" placeholder="🔍 Name suchen …" oninput="filterMultiAktive(this.value)"/></div>
+          <div class="aktive-list" id="m-aktiveList" style="max-height:130px"></div>
+          <div class="aktive-selected-count" id="m-aktiveCount">0 Personen ausgewählt</div>
+          <div class="aktive-actions">
+            <button class="aktive-act-btn" onclick="selectAllMultiAktive()">Alle auswählen</button>
+            <button class="aktive-act-btn" onclick="clearMultiAktive()">Auswahl leeren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Termine Liste -->
+      <div class="form-group">
+        <label>Termine <span id="m-terminCount" style="color:var(--teal);font-weight:700">(0)</span></label>
+        <div id="m-terminSlots"></div>
+        <button class="aktive-act-btn" onclick="addMultiSlot()" style="margin-top:6px;border-color:var(--teal);color:var(--teal)">＋ Termin hinzufügen</button>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" onclick="saveMultiTermine()" style="flex:1;background:var(--teal);color:#071a0c;font-weight:800">📋&nbsp;Alle Termine anlegen</button>
+        <button class="btn btn-outline" onclick="resetMulti()">↺</button>
+      </div>
+    </div>
+
   </aside>
 
   <main class="main">
@@ -483,10 +550,11 @@
   }
 
   function switchTab(w) {
-    ['einzel','serie'].forEach(t=>{
+    ['einzel','serie','multi'].forEach(t=>{
       $(`tab-${t}`).classList.toggle('active',t===w);
       $(`panel-${t}`).classList.toggle('active',t===w);
     });
+    if(w==='multi') { buildMultiAktiveList(''); renderMultiSlots(); }
   }
 
   function applyTpl(thema, text, ort, h, modeType, gruppeVal) {
@@ -678,7 +746,124 @@
     }).join('')+'</div>';
   }
 
-  document.querySelectorAll('input[type="text"]:not(#aktiveSearch):not(#s-aktiveSearch)').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
+
+  // ── Mehrfachtermin ──
+  let selectedMultiAktive = new Set();
+  let currentMultiMode = 'gruppe';
+
+  function setMultiMode(mode) {
+    currentMultiMode = mode;
+    document.getElementById('m-modeGruppe').classList.toggle('active-mode', mode==='gruppe');
+    document.getElementById('m-modeAktive').classList.toggle('active-mode', mode==='aktive');
+    document.getElementById('m-gruppePanel').style.display = mode==='gruppe' ? '' : 'none';
+    document.getElementById('m-aktivePanel').style.display = mode==='aktive' ? '' : 'none';
+    if (mode==='aktive') buildMultiAktiveList('');
+  }
+
+  function getMultiGruppeValue() {
+    if (currentMultiMode === 'gruppe') return document.getElementById('m-gruppe').value;
+    return [...selectedMultiAktive].join(',');
+  }
+  let multiSlots = [];
+
+  function buildMultiAktiveList(searchVal) {
+    const list = $('m-aktiveList');
+    const filter = (searchVal||'').toLowerCase();
+    const filtered = AKTIVE.filter(n => n.toLowerCase().includes(filter));
+    list.innerHTML = filtered.map(name => `
+      <label class="aktive-item ${selectedMultiAktive.has(name)?'selected':''}" onclick="toggleMultiAktive(event,'${name.replace(/'/g,"\'").replace(/\\/g,'\\\\')}')">
+        <input type="checkbox" ${selectedMultiAktive.has(name)?'checked':''} onclick="event.stopPropagation()"/>
+        <span class="aktive-item-name">${esc(name)}</span>
+      </label>`).join('');
+    $('m-aktiveCount').textContent = selectedMultiAktive.size + ' Person' + (selectedMultiAktive.size !== 1 ? 'en' : '') + ' ausgewählt';
+  }
+
+  function toggleMultiAktive(e, name) {
+    if (selectedMultiAktive.has(name)) selectedMultiAktive.delete(name); else selectedMultiAktive.add(name);
+    buildMultiAktiveList($('m-aktiveSearch').value);
+  }
+
+  function filterMultiAktive(val) { buildMultiAktiveList(val); }
+  function selectAllMultiAktive() { AKTIVE.forEach(n=>selectedMultiAktive.add(n)); buildMultiAktiveList($('m-aktiveSearch').value); }
+  function clearMultiAktive() { selectedMultiAktive.clear(); buildMultiAktiveList($('m-aktiveSearch').value); }
+
+  function addMultiSlot() {
+    if (multiSlots.length >= 10) { toast('Maximal 10 Termine möglich','var(--orange)','#fff'); return; }
+    const id = Date.now();
+    multiSlots.push(id);
+    renderMultiSlots();
+  }
+
+  function removeMultiSlot(id) {
+    multiSlots = multiSlots.filter(s => s !== id);
+    renderMultiSlots();
+  }
+
+  function renderMultiSlots() {
+    const container = $('m-terminSlots');
+    $('m-terminCount').textContent = '(' + multiSlots.length + ')';
+    if (!multiSlots.length) { container.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px 0">Noch keine Termine – klicke auf „＋ Termin hinzufügen".</div>'; return; }
+    container.innerHTML = multiSlots.map((id, idx) => `
+      <div class="m-slot" id="slot-${id}">
+        <div class="m-slot-header">
+          <span>Termin ${idx+1}</span>
+          <button class="m-slot-remove" onclick="removeMultiSlot(${id})">🗑</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+          <div><label>Datum *</label><input type="date" id="m-bd-${id}" value="${today}"/></div>
+          <div><label>Beginn *</label><input type="time" id="m-bz-${id}" value="12:00"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label>Ende Datum</label><input type="date" id="m-ed-${id}" value="${today}"/></div>
+          <div><label>Ende Zeit *</label><input type="time" id="m-ez-${id}" value="15:30"/></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function saveMultiTermine() {
+    const thema = $('m-thema').value.trim();
+    const text  = $('m-text').value.trim();
+    const ort   = $('m-ort').value.trim();
+    const gruppe = getMultiGruppeValue();
+
+    if (!thema || !ort) { toast('⚠️ Thema und Ort ausfüllen!','var(--orange)','#fff'); return; }
+    if (!multiSlots.length) { toast('⚠️ Mindestens einen Termin hinzufügen!','var(--orange)','#fff'); return; }
+    if (currentMultiMode==='aktive' && !selectedMultiAktive.size) { toast('⚠️ Mindestens eine Person auswählen!','var(--orange)','#fff'); return; }
+
+    let count = 0;
+    for (const id of multiSlots) {
+      const bd = $(`m-bd-${id}`).value;
+      const bz = $(`m-bz-${id}`).value;
+      const ed = $(`m-ed-${id}`).value;
+      const ez = $(`m-ez-${id}`).value;
+      if (!bd || !bz || !ed || !ez) { toast('⚠️ Bitte alle Datums- und Zeitfelder ausfüllen!','var(--orange)','#fff'); return; }
+      termine.push({ begin: toCSVDate(bd, bz), ende: toCSVDate(ed, ez), thema, text, ort, gruppe, isAktive: currentMultiMode==='aktive' });
+      count++;
+    }
+
+    render();
+    const zuweisungInfo = currentMultiMode==='aktive' ? selectedMultiAktive.size+' Aktive' : ($('m-gruppe').value||'keine Gruppe');
+    toast(`📋 ${count} Termin(e) angelegt – ${zuweisungInfo}`,'var(--teal)','#071a0c');
+    resetMulti();
+  }
+
+  function resetMulti() {
+    $('m-thema').value = '';
+    $('m-text').value  = '';
+    $('m-ort').value   = '';
+    setMultiMode('gruppe');
+    $('m-gruppe').value = '';
+    $('m-aktiveSearch').value = '';
+    selectedMultiAktive.clear();
+    multiSlots = [];
+    buildMultiAktiveList('');
+    renderMultiSlots();
+  }
+
+  // Init multi slots display
+  renderMultiSlots();
+
+  document.querySelectorAll('input[type="text"]:not(#aktiveSearch):not(#s-aktiveSearch):not(#m-aktiveSearch)').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
   updatePreview();
   render();
 </script>
