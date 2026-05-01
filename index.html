@@ -13,6 +13,7 @@
     --blue: #3a86ff; --blue-dim: rgba(58,134,255,0.12);
     --green: #2dc653; --orange: #f4a261;
     --purple: #9b5de5; --purple-dim: rgba(155,93,229,0.12);
+    --teal: #06d6a0; --teal-dim: rgba(6,214,160,0.12);
     --text: #e8eaf2; --text-dim: #6b7194; --text-mid: #9ba3c4;
     --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif; --r: 8px;
   }
@@ -47,7 +48,7 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  .app { display: grid; grid-template-columns: 400px 1fr; flex: 1; min-height: 0; }
+  .app { display: grid; grid-template-columns: 420px 1fr; flex: 1; min-height: 0; }
   .sidebar { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
   .sidebar-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
   .section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; }
@@ -73,32 +74,51 @@
   textarea { resize: vertical; min-height: 56px; }
   .form-actions { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
 
-  .serie-info { background: var(--purple-dim); border: 1px solid var(--purple); border-radius: var(--r); padding: 10px 12px; font-size: 12px; color: var(--text-mid); margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
+  /* ── Gruppe/Aktive Toggle ── */
+  .gruppe-mode-toggle { display: flex; gap: 4px; margin-bottom: 10px; }
+  .mode-btn { flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border2); background: transparent; color: var(--text-dim); font-family: var(--sans); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .mode-btn.active-mode { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .mode-btn:hover:not(.active-mode) { border-color: var(--blue); color: var(--blue); }
 
+  /* ── Aktive Multi-Select ── */
+  .aktive-search { margin-bottom: 6px; }
+  .aktive-search input { padding: 7px 10px; font-size: 12px; }
+  .aktive-list { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--r); max-height: 180px; overflow-y: auto; }
+  .aktive-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); user-select: none; }
+  .aktive-item:last-child { border-bottom: none; }
+  .aktive-item:hover { background: var(--surface2); }
+  .aktive-item.selected { background: var(--teal-dim); }
+  .aktive-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--teal); flex-shrink: 0; cursor: pointer; }
+  .aktive-item-name { font-size: 12px; color: var(--text); }
+  .aktive-item.selected .aktive-item-name { color: var(--teal); font-weight: 600; }
+  .aktive-selected-count { font-size: 11px; color: var(--teal); font-weight: 700; margin-top: 5px; }
+  .aktive-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .aktive-act-btn { padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border2); background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
+  .aktive-act-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* ── Serie ── */
+  .serie-info { background: var(--purple-dim); border: 1px solid var(--purple); border-radius: var(--r); padding: 10px 12px; font-size: 12px; color: var(--text-mid); margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
   .wochentag-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
   .wt-btn { padding: 6px 2px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--text-dim); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; font-family: var(--sans); }
   .wt-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
   .wt-btn:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
-
   .wochen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 4px; }
   .wo-btn { padding: 6px 4px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--text-dim); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; font-family: var(--sans); }
   .wo-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
   .wo-btn:hover:not(.active) { border-color: var(--blue); color: var(--blue); }
-
   .serie-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; font-size: 12px; font-family: var(--mono); color: var(--text-mid); max-height: 120px; overflow-y: auto; margin-top: 6px; }
   .spi { padding: 3px 0; border-bottom: 1px solid var(--border); }
   .spi:last-child { border-bottom: none; }
 
+  /* ── Main ── */
   .main { background: var(--bg); overflow-y: auto; display: flex; flex-direction: column; }
   .main-header { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
   .main-header-left { display: flex; align-items: center; gap: 10px; }
   .main-title { font-size: 14px; font-weight: 700; }
   .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; font-family: var(--mono); }
-
   .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--text-dim); padding: 60px; text-align: center; }
   .empty-icon { font-size: 56px; opacity: 0.25; }
   .empty-title { font-size: 16px; font-weight: 700; color: var(--text-mid); }
-
   .card-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; transition: border-color 0.15s, box-shadow 0.15s; animation: fadeUp 0.2s ease both; }
   .card.sc { border-left: 3px solid var(--purple); }
@@ -113,21 +133,15 @@
   .card-text { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); font-style: italic; }
   .card-actions { display: flex; flex-direction: column; gap: 4px; }
   .stag { display:inline-block; background:var(--purple-dim); color:var(--purple); border:1px solid var(--purple); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); }
-  .gtag { display:inline-block; background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gtag { display:inline-block; background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); }
+  .atag { display:inline-block; background:var(--teal-dim); color:var(--teal); border:1px solid var(--teal); font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; font-family:var(--sans); }
 
   .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; pointer-events: none; }
   .toast.show { transform: translateY(0); opacity: 1; }
-
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-  @media (max-width: 768px) {
-    .app { grid-template-columns: 1fr; }
-    .main { min-height: 50vh; }
-    header { padding: 0 16px; }
-    .header-sub { display: none; }
-  }
+  @media (max-width: 768px) { .app { grid-template-columns: 1fr; } header { padding: 0 16px; } .header-sub { display: none; } }
 </style>
 </head>
 <body>
@@ -153,14 +167,14 @@
     <div class="sidebar-section">
       <div class="section-label">Schnellvorlagen</div>
       <div class="template-grid">
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5,'')"><span class="tpl-icon">🔧</span>Übungsdienst</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2,'')"><span class="tpl-icon">📋</span>Versammlung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4,'')"><span class="tpl-icon">📚</span>Schulung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Probealarm','','Gerätehaus',0.5,'Probealarm')"><span class="tpl-icon">🚨</span>Probealarm</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Technische Hilfeleistung','','Einsatzort',2,'')"><span class="tpl-icon">⚙️</span>THL</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Jahreshauptversammlung','','Gerätehaus',3,'Vorstand')"><span class="tpl-icon">🏛️</span>JHV</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Atemschutzübung','','Übungsgelände',3,'Atemschutzgeräteträger')"><span class="tpl-icon">😷</span>AGT-Übung</button>
-        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Fahrzeugkunde','','Wache',2,'')"><span class="tpl-icon">🚗</span>Fahrzeugkunde</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Übungsdienst','Thema folgt','Wache',3.5,'gruppe','')"><span class="tpl-icon">🔧</span>Übungsdienst</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Versammlung','','Gerätehaus',2,'gruppe','')"><span class="tpl-icon">📋</span>Versammlung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Schulung','','Gerätehaus',4,'gruppe','')"><span class="tpl-icon">📚</span>Schulung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Probealarm','','Gerätehaus',0.5,'gruppe','Probealarm')"><span class="tpl-icon">🚨</span>Probealarm</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Technische Hilfeleistung','','Einsatzort',2,'gruppe','')"><span class="tpl-icon">⚙️</span>THL</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Jahreshauptversammlung','','Gerätehaus',3,'gruppe','Vorstand')"><span class="tpl-icon">🏛️</span>JHV</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Atemschutzübung','','Übungsgelände',3,'gruppe','Atemschutzgeräteträger')"><span class="tpl-icon">😷</span>AGT-Übung</button>
+        <button class="tpl-btn" onclick="switchTab('einzel');applyTpl('Fahrzeugkunde','','Wache',2,'gruppe','')"><span class="tpl-icon">🚗</span>Fahrzeugkunde</button>
         <button class="tpl-btn serie-tpl" style="grid-column:span 2" onclick="switchTab('serie');applySerieVorlage()"><span class="tpl-icon">🔁</span>Probealarm als Serientermin</button>
       </div>
     </div>
@@ -185,36 +199,46 @@
       <div class="form-group"><label>Thema *</label><input type="text" id="thema" placeholder="z.B. Übungsdienst …"/></div>
       <div class="form-group"><label>Text / Beschreibung</label><textarea id="text" placeholder="Zusätzliche Hinweise …"></textarea></div>
       <div class="form-group"><label>Ort *</label><input type="text" id="ort" placeholder="z.B. Wache, Gerätehaus …"/></div>
+
+      <!-- Gruppe / Aktive Toggle -->
       <div class="form-group">
-        <label>Gruppe (optional)</label>
-        <select id="gruppe">
-          <option value="">— keine Gruppe —</option>
-          <option>Absturzsicherung</option>
-          <option>Aggregat Feuerwehrhaus</option>
-          <option>Alarm-Info</option>
-          <option>Alarmierung</option>
-          <option>Alarmierung_Bürgermeister</option>
-          <option>Atemschutzgeräteträger</option>
-          <option>Ausbildungsgruppe</option>
-          <option>Fahrzeugbeschaffung</option>
-          <option>FFD Ausschuss</option>
-          <option>Flughelfer</option>
-          <option>Frauen_FFD</option>
-          <option>Gaufest2025</option>
-          <option>Gefahrgutzug</option>
-          <option>Gruppenführer</option>
-          <option>Jugendgruppe</option>
-          <option>Leistungsabzeichen_THL</option>
-          <option>Maschinisten</option>
-          <option>Motorsäge</option>
-          <option>Probealarm</option>
-          <option>SmokeAlarm</option>
-          <option>Social Media</option>
-          <option>Verwaltung</option>
-          <option>Vorstand</option>
-          <option>Wassermeister</option>
-        </select>
+        <label>Zuweisung</label>
+        <div class="gruppe-mode-toggle">
+          <button class="mode-btn active-mode" id="modeGruppe" onclick="setMode('gruppe')">👥 Gruppe</button>
+          <button class="mode-btn" id="modeAktive" onclick="setMode('aktive')">🧑‍🚒 Aktive</button>
+        </div>
+
+        <!-- Gruppe Dropdown -->
+        <div id="gruppePanel">
+          <select id="gruppe">
+            <option value="">— keine Gruppe —</option>
+            <option>Absturzsicherung</option><option>Aggregat Feuerwehrhaus</option>
+            <option>Alarm-Info</option><option>Alarmierung</option>
+            <option>Alarmierung_Bürgermeister</option><option>Atemschutzgeräteträger</option>
+            <option>Ausbildungsgruppe</option><option>Fahrzeugbeschaffung</option>
+            <option>FFD Ausschuss</option><option>Flughelfer</option>
+            <option>Frauen_FFD</option><option>Gaufest2025</option>
+            <option>Gefahrgutzug</option><option>Gruppenführer</option>
+            <option>Jugendgruppe</option><option>Leistungsabzeichen_THL</option>
+            <option>Maschinisten</option><option>Motorsäge</option>
+            <option>Probealarm</option><option>SmokeAlarm</option>
+            <option>Social Media</option><option>Verwaltung</option>
+            <option>Vorstand</option><option>Wassermeister</option>
+          </select>
+        </div>
+
+        <!-- Aktive Multi-Select -->
+        <div id="aktivePanel" style="display:none">
+          <div class="aktive-search"><input type="text" id="aktiveSearch" placeholder="🔍 Name suchen …" oninput="filterAktive(this.value)"/></div>
+          <div class="aktive-list" id="aktiveList"></div>
+          <div class="aktive-selected-count" id="aktiveCount">0 Personen ausgewählt</div>
+          <div class="aktive-actions">
+            <button class="aktive-act-btn" onclick="selectAllAktive()">Alle auswählen</button>
+            <button class="aktive-act-btn" onclick="clearAktive()">Auswahl leeren</button>
+          </div>
+        </div>
       </div>
+
       <div class="form-actions">
         <button class="btn btn-red" onclick="saveTermin()" id="saveBtn" style="flex:1">＋&nbsp;Termin hinzufügen</button>
         <button class="btn btn-outline" onclick="resetForm()" title="Zurücksetzen">↺</button>
@@ -225,46 +249,49 @@
     <div class="tab-panel sidebar-section" id="panel-serie" style="flex:1">
       <div class="section-label">Serientermin konfigurieren</div>
       <div class="serie-info"><span>🔁</span><span>Legt viele Einzeltermine auf einmal an – z.B. jeden 1. Samstag im Monat für ein ganzes Jahr.</span></div>
-
       <div class="form-group"><label>Thema *</label><input type="text" id="s-thema" placeholder="z.B. Probealarm"/></div>
       <div class="form-group"><label>Text / Beschreibung</label><textarea id="s-text" placeholder="Zusätzliche Hinweise …" style="min-height:44px"></textarea></div>
       <div class="form-group"><label>Ort *</label><input type="text" id="s-ort" placeholder="z.B. Gerätehaus"/></div>
+
+      <!-- Gruppe / Aktive Toggle für Serie -->
       <div class="form-group">
-        <label>Gruppe (optional)</label>
-        <select id="s-gruppe">
-          <option value="">— keine Gruppe —</option>
-          <option>Absturzsicherung</option>
-          <option>Aggregat Feuerwehrhaus</option>
-          <option>Alarm-Info</option>
-          <option>Alarmierung</option>
-          <option>Alarmierung_Bürgermeister</option>
-          <option>Atemschutzgeräteträger</option>
-          <option>Ausbildungsgruppe</option>
-          <option>Fahrzeugbeschaffung</option>
-          <option>FFD Ausschuss</option>
-          <option>Flughelfer</option>
-          <option>Frauen_FFD</option>
-          <option>Gaufest2025</option>
-          <option>Gefahrgutzug</option>
-          <option>Gruppenführer</option>
-          <option>Jugendgruppe</option>
-          <option>Leistungsabzeichen_THL</option>
-          <option>Maschinisten</option>
-          <option>Motorsäge</option>
-          <option>Probealarm</option>
-          <option>SmokeAlarm</option>
-          <option>Social Media</option>
-          <option>Verwaltung</option>
-          <option>Vorstand</option>
-          <option>Wassermeister</option>
-        </select>
+        <label>Zuweisung</label>
+        <div class="gruppe-mode-toggle">
+          <button class="mode-btn active-mode" id="s-modeGruppe" onclick="setSerieMode('gruppe')">👥 Gruppe</button>
+          <button class="mode-btn" id="s-modeAktive" onclick="setSerieMode('aktive')">🧑‍🚒 Aktive</button>
+        </div>
+        <div id="s-gruppePanel">
+          <select id="s-gruppe">
+            <option value="">— keine Gruppe —</option>
+            <option>Absturzsicherung</option><option>Aggregat Feuerwehrhaus</option>
+            <option>Alarm-Info</option><option>Alarmierung</option>
+            <option>Alarmierung_Bürgermeister</option><option>Atemschutzgeräteträger</option>
+            <option>Ausbildungsgruppe</option><option>Fahrzeugbeschaffung</option>
+            <option>FFD Ausschuss</option><option>Flughelfer</option>
+            <option>Frauen_FFD</option><option>Gaufest2025</option>
+            <option>Gefahrgutzug</option><option>Gruppenführer</option>
+            <option>Jugendgruppe</option><option>Leistungsabzeichen_THL</option>
+            <option>Maschinisten</option><option>Motorsäge</option>
+            <option>Probealarm</option><option>SmokeAlarm</option>
+            <option>Social Media</option><option>Verwaltung</option>
+            <option>Vorstand</option><option>Wassermeister</option>
+          </select>
+        </div>
+        <div id="s-aktivePanel" style="display:none">
+          <div class="aktive-search"><input type="text" id="s-aktiveSearch" placeholder="🔍 Name suchen …" oninput="filterSerieAktive(this.value)"/></div>
+          <div class="aktive-list" id="s-aktiveList"></div>
+          <div class="aktive-selected-count" id="s-aktiveCount">0 Personen ausgewählt</div>
+          <div class="aktive-actions">
+            <button class="aktive-act-btn" onclick="selectAllSerieAktive()">Alle auswählen</button>
+            <button class="aktive-act-btn" onclick="clearSerieAktive()">Auswahl leeren</button>
+          </div>
+        </div>
       </div>
 
       <div class="form-row">
         <div class="form-group"><label>Beginn Uhrzeit *</label><input type="time" id="s-bz" value="12:00" oninput="updatePreview()"/></div>
         <div class="form-group"><label>Ende Uhrzeit *</label><input type="time" id="s-ez" value="12:30" oninput="updatePreview()"/></div>
       </div>
-
       <div class="form-group">
         <label>Wochentag(e)</label>
         <div class="wochentag-grid">
@@ -277,7 +304,6 @@
           <button class="wt-btn" data-wt="0" onclick="toggleWT(this)">So</button>
         </div>
       </div>
-
       <div class="form-group">
         <label>Welche(r) im Monat</label>
         <div class="wochen-grid">
@@ -289,17 +315,14 @@
         </div>
         <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Welches Vorkommen des Wochentags soll erfasst werden?</div>
       </div>
-
       <div class="form-row">
         <div class="form-group"><label>Von Datum *</label><input type="date" id="s-von" oninput="updatePreview()"/></div>
         <div class="form-group"><label>Bis Datum *</label><input type="date" id="s-bis" oninput="updatePreview()"/></div>
       </div>
-
       <div class="form-group">
         <label>Vorschau</label>
         <div class="serie-preview" id="seriePreview"><span style="color:var(--text-dim)">Felder ausfüllen …</span></div>
       </div>
-
       <div class="form-actions">
         <button class="btn btn-purple" onclick="addSerie()" style="flex:1">🔁&nbsp;Alle Termine anlegen</button>
         <button class="btn btn-outline" onclick="resetSerie()">↺</button>
@@ -326,8 +349,37 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  // ── Daten ──
+  const AKTIVE = [
+    "Christina Antretter","Martin Antretter","Magdalena Astner","Sebastian Astner",
+    "Veronika Astner","Thomas Astner","Korbinian Astner","Michael Astner",
+    "Johannes Bachleitner","Markus Berger","Hubert Berger","Martin Berger","Franz Berger",
+    "Anton Braun","Michael Braun","Theresa Braun","Anton Braun jun.",
+    "Andreas Buchberger","Hans Buchberger","Johannes Buchberger","Markus Buchberger",
+    "Sebastian Buchberger","Thomas Buchberger","Hubert Estner","Michael Feicht",
+    "Michael Franz","Maximilian Franz","Ludwig Franz","Sebastian Grad","Anton Grad",
+    "Johannes Grad","Christoph Grebl","Lukas Hartig","Georg Hartig","Hanna Herbster",
+    "Matthias Horne","Korbinian Huber","Florian Hörhammer","Elias Jakob",
+    "Rudolf Kirmair","Thomas Kirmair","Mareissa Kirmair","Florian Kolb",
+    "Matthias Kuchler","Magdalena Kuchler","Carsten Kumbein","Benedikt Kürmeier",
+    "Josip Lackovic","Adrian Lackovic","Julia Lochner","Andreas Madersbacher",
+    "Simon Madersbacher","Leon Markl","Andreas Mikesch","Klaus Moser","Stefan Muhr",
+    "Lea Müller","Benedikt Müller","Maximillian Müller","Josef Nagl","Michael Nagl",
+    "Sepp Oberauer","Thomas Obermair","Sophia Rendell","Marcel Ruschke","Ludwig Sailer",
+    "Philipp Schmidt","Maximilian Schmidt","Andre Schumann","Jochen Schuppe","Pascal Schuppe",
+    "Martin Siller","Wieland Siller","Martin Stadler","Josef Steer","Josef Simon Steer",
+    "Martin Steer","Markus Steer","Tobias Stuhlreiter","Stephan Tobien","Lukas Urscher",
+    "Simon Weber","Christian Zweckstätter","Elias Zweckstätter",
+    "Sebastian Bichler jun.","Sebastian Bichler sen."
+  ];
+
   let termine = [];
   let editIdx = -1;
+  let currentMode = 'gruppe';
+  let currentSerieMode = 'gruppe';
+  let selectedAktive = new Set();
+  let selectedSerieAktive = new Set();
+
   const today = new Date().toISOString().slice(0,10);
   const yr = new Date().getFullYear();
   document.getElementById('beginDatum').value = today;
@@ -338,12 +390,72 @@
   const $ = id => document.getElementById(id);
   const pad = n => String(n).padStart(2,'0');
 
+  // ── Aktive Listen aufbauen ──
+  function buildAktiveList(containerId, selectedSet, searchVal) {
+    const list = $(containerId);
+    const filter = (searchVal||'').toLowerCase();
+    const filtered = AKTIVE.filter(n => n.toLowerCase().includes(filter));
+    list.innerHTML = filtered.map(name => `
+      <label class="aktive-item ${selectedSet.has(name)?'selected':''}" onclick="toggleAktive(event,'${containerId}','${name.replace(/'/g,"\\'")}')">
+        <input type="checkbox" ${selectedSet.has(name)?'checked':''} onclick="event.stopPropagation()"/>
+        <span class="aktive-item-name">${esc(name)}</span>
+      </label>`).join('');
+    updateAktiveCount(containerId, selectedSet);
+  }
+
+  function toggleAktive(e, containerId, name) {
+    const set = containerId === 'aktiveList' ? selectedAktive : selectedSerieAktive;
+    if (set.has(name)) set.delete(name); else set.add(name);
+    buildAktiveList(containerId, set, containerId==='aktiveList' ? $('aktiveSearch').value : $('s-aktiveSearch').value);
+  }
+
+  function updateAktiveCount(containerId, set) {
+    const countId = containerId === 'aktiveList' ? 'aktiveCount' : 's-aktiveCount';
+    $(countId).textContent = set.size + ' Person' + (set.size !== 1 ? 'en' : '') + ' ausgewählt';
+  }
+
+  function filterAktive(val) { buildAktiveList('aktiveList', selectedAktive, val); }
+  function filterSerieAktive(val) { buildAktiveList('s-aktiveList', selectedSerieAktive, val); }
+  function selectAllAktive() { AKTIVE.forEach(n=>selectedAktive.add(n)); buildAktiveList('aktiveList', selectedAktive, $('aktiveSearch').value); }
+  function clearAktive() { selectedAktive.clear(); buildAktiveList('aktiveList', selectedAktive, $('aktiveSearch').value); }
+  function selectAllSerieAktive() { AKTIVE.forEach(n=>selectedSerieAktive.add(n)); buildAktiveList('s-aktiveList', selectedSerieAktive, $('s-aktiveSearch').value); }
+  function clearSerieAktive() { selectedSerieAktive.clear(); buildAktiveList('s-aktiveList', selectedSerieAktive, $('s-aktiveSearch').value); }
+
+  // ── Mode Toggle ──
+  function setMode(mode) {
+    currentMode = mode;
+    $('modeGruppe').classList.toggle('active-mode', mode==='gruppe');
+    $('modeAktive').classList.toggle('active-mode', mode==='aktive');
+    $('gruppePanel').style.display = mode==='gruppe' ? '' : 'none';
+    $('aktivePanel').style.display = mode==='aktive' ? '' : 'none';
+    if (mode==='aktive') buildAktiveList('aktiveList', selectedAktive, '');
+  }
+
+  function setSerieMode(mode) {
+    currentSerieMode = mode;
+    $('s-modeGruppe').classList.toggle('active-mode', mode==='gruppe');
+    $('s-modeAktive').classList.toggle('active-mode', mode==='aktive');
+    $('s-gruppePanel').style.display = mode==='gruppe' ? '' : 'none';
+    $('s-aktivePanel').style.display = mode==='aktive' ? '' : 'none';
+    if (mode==='aktive') buildAktiveList('s-aktiveList', selectedSerieAktive, '');
+  }
+
+  function getGruppeValue() {
+    if (currentMode === 'gruppe') return $('gruppe').value;
+    return [...selectedAktive].join(',');
+  }
+
+  function getSerieGruppeValue() {
+    if (currentSerieMode === 'gruppe') return $('s-gruppe').value;
+    return [...selectedSerieAktive].join(',');
+  }
+
+  // ── Helpers ──
   function toCSVDate(iso, time) { const [y,m,d]=iso.split('-'); return `${d}.${m}.${y} ${time}`; }
   function fromCSVDate(dt) { const [dp,t]=dt.trim().split(' '); const [d,m,y]=dp.split('.'); return {date:`${y}-${m}-${d}`,time:t}; }
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  function toast(msg, bg='var(--green)', fg='#071a0c') {
-    const t=$('toast'); t.textContent=msg; t.style.background=bg; t.style.color=fg;
+  function toast(msg, bg, fg) {
+    const t=$('toast'); t.textContent=msg; t.style.background=bg||'var(--green)'; t.style.color=fg||'#071a0c';
     t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800);
   }
 
@@ -354,19 +466,19 @@
     });
   }
 
-  function applyTpl(thema, text, ort, h, gruppe) {
+  function applyTpl(thema, text, ort, h, modeType, gruppeVal) {
     $('thema').value=thema; $('text').value=text; $('ort').value=ort;
     const [bh,bm]=($('beginZeit').value||'12:00').split(':').map(Number);
     const tot=bh*60+bm+Math.round(h*60);
     $('endeZeit').value=pad(Math.floor(tot/60)%24)+':'+pad(tot%60);
     $('endeDatum').value=$('beginDatum').value;
-    $('gruppe').value=gruppe||'';
+    setMode('gruppe'); $('gruppe').value=gruppeVal||'';
   }
 
   function applySerieVorlage() {
     $('s-thema').value='Probealarm'; $('s-text').value=''; $('s-ort').value='Gerätehaus';
     $('s-bz').value='12:00'; $('s-ez').value='12:30';
-    $('s-gruppe').value='Probealarm';
+    setSerieMode('gruppe'); $('s-gruppe').value='Probealarm';
     document.querySelectorAll('.wt-btn').forEach(b=>b.classList.remove('active'));
     document.querySelector('.wt-btn[data-wt="6"]').classList.add('active');
     document.querySelectorAll('.wo-btn').forEach(b=>b.classList.add('active'));
@@ -385,19 +497,18 @@
     const result=[], start=new Date(von), end=new Date(bis);
     end.setHours(23,59,59);
     let cur=new Date(start.getFullYear(),start.getMonth(),1);
-    while (cur<=end) {
+    while(cur<=end){
       const y=cur.getFullYear(), m=cur.getMonth();
       wts.forEach(wt=>{
-        const occ=[];
-        const dim=new Date(y,m+1,0).getDate();
-        for (let d=1;d<=dim;d++) { const day=new Date(y,m,d); if(day.getDay()===wt) occ.push(day); }
-        wos.forEach(nth=>{ if(nth<=occ.length){ const day=occ[nth-1]; if(day>=start&&day<=end){ const iso=`${day.getFullYear()}-${pad(day.getMonth()+1)}-${pad(day.getDate())}`; result.push({iso,begin:toCSVDate(iso,bz),ende:toCSVDate(iso,ez)}); }}});
+        const occ=[], dim=new Date(y,m+1,0).getDate();
+        for(let d=1;d<=dim;d++){const day=new Date(y,m,d);if(day.getDay()===wt)occ.push(day);}
+        wos.forEach(nth=>{if(nth<=occ.length){const day=occ[nth-1];if(day>=start&&day<=end){const iso=`${day.getFullYear()}-${pad(day.getMonth()+1)}-${pad(day.getDate())}`;result.push({iso,begin:toCSVDate(iso,bz),ende:toCSVDate(iso,ez)});}}});
       });
       cur.setMonth(cur.getMonth()+1);
     }
     result.sort((a,b)=>a.iso.localeCompare(b.iso));
     const seen=new Set();
-    return result.filter(r=>{ if(seen.has(r.begin))return false; seen.add(r.begin); return true; });
+    return result.filter(r=>{if(seen.has(r.begin))return false;seen.add(r.begin);return true;});
   }
 
   function updatePreview() {
@@ -408,26 +519,29 @@
   }
 
   function addSerie() {
-    const thema=$('s-thema').value.trim(), text=$('s-text').value.trim(), ort=$('s-ort').value.trim(), gruppe=$('s-gruppe').value;
+    const thema=$('s-thema').value.trim(), text=$('s-text').value.trim(), ort=$('s-ort').value.trim();
+    const gruppe=getSerieGruppeValue();
     if(!thema||!ort||!$('s-von').value||!$('s-bis').value){toast('⚠️ Bitte alle Pflichtfelder ausfüllen!','var(--orange)','#fff');return;}
     const dates=getSerieTermine();
     if(!dates.length){toast('⚠️ Keine Termine in der Vorschau!','var(--orange)','#fff');return;}
-    dates.forEach(d=>termine.push({begin:d.begin,ende:d.ende,thema,text,ort,gruppe,serie:true}));
+    dates.forEach(d=>termine.push({begin:d.begin,ende:d.ende,thema,text,ort,gruppe,serie:true,isAktive:currentSerieMode==='aktive'}));
     render(); toast(`🔁 ${dates.length} Serientermine angelegt`,'#9b5de5','#fff');
   }
 
   function resetSerie() {
-    $('s-thema').value=''; $('s-text').value=''; $('s-ort').value=''; $('s-gruppe').value='';
+    $('s-thema').value=''; $('s-text').value=''; $('s-ort').value='';
     $('s-bz').value='12:00'; $('s-ez').value='12:30';
     $('s-von').value=`${yr}-01-01`; $('s-bis').value=`${yr}-12-31`;
+    setSerieMode('gruppe'); $('s-gruppe').value=''; selectedSerieAktive.clear();
     updatePreview();
   }
 
   function saveTermin() {
     const bd=$('beginDatum').value, bz=$('beginZeit').value, ed=$('endeDatum').value, ez=$('endeZeit').value;
-    const th=$('thema').value.trim(), tx=$('text').value.trim(), or=$('ort').value.trim(), gr=$('gruppe').value;
+    const th=$('thema').value.trim(), tx=$('text').value.trim(), or=$('ort').value.trim();
+    const gr=getGruppeValue();
     if(!bd||!bz||!ed||!ez||!th||!or){toast('⚠️ Bitte alle Pflichtfelder (*) ausfüllen!','var(--orange)','#fff');return;}
-    const t={begin:toCSVDate(bd,bz),ende:toCSVDate(ed,ez),thema:th,text:tx,ort:or,gruppe:gr};
+    const t={begin:toCSVDate(bd,bz),ende:toCSVDate(ed,ez),thema:th,text:tx,ort:or,gruppe:gr,isAktive:currentMode==='aktive'};
     if(editIdx>=0){termine[editIdx]=t;editIdx=-1;toast('✏️ Termin aktualisiert');}
     else{termine.push(t);toast('✅ Termin hinzugefügt');}
     resetForm(); render();
@@ -439,7 +553,13 @@
     $('beginDatum').value=b.date; $('beginZeit').value=b.time;
     $('endeDatum').value=e.date; $('endeZeit').value=e.time;
     $('thema').value=t.thema; $('text').value=t.text; $('ort').value=t.ort;
-    $('gruppe').value=t.gruppe||'';
+    if(t.isAktive) {
+      setMode('aktive');
+      selectedAktive = new Set(t.gruppe.split(',').map(s=>s.trim()).filter(Boolean));
+      buildAktiveList('aktiveList', selectedAktive, '');
+    } else {
+      setMode('gruppe'); $('gruppe').value=t.gruppe||'';
+    }
     $('saveBtn').textContent='💾 Termin speichern'; $('formTitle').textContent='Termin bearbeiten';
     switchTab('einzel');
   }
@@ -449,13 +569,14 @@
   function clearAll() {
     if(!termine.length)return;
     if(!confirm(`Alle ${termine.length} Termine löschen?`))return;
-    termine=[];resetForm();render();toast('🗑 Alle gelöscht','var(--accent)','#fff');
+    termine=[]; resetForm(); render(); toast('🗑 Alle gelöscht','var(--accent)','#fff');
   }
 
   function resetForm() {
     $('beginDatum').value=today; $('beginZeit').value='12:00';
     $('endeDatum').value=today; $('endeZeit').value='15:30';
-    $('thema').value=''; $('text').value=''; $('ort').value=''; $('gruppe').value='';
+    $('thema').value=''; $('text').value=''; $('ort').value='';
+    setMode('gruppe'); $('gruppe').value=''; selectedAktive.clear();
     $('saveBtn').textContent='＋ Termin hinzufügen'; $('formTitle').textContent='Neuer Termin'; editIdx=-1;
   }
 
@@ -481,7 +602,7 @@
         const cols=[];let cur='',inQ=false;
         for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur);cur='';}else cur+=c;}
         cols.push(cur);
-        if(cols.length>=5){termine.push({begin:cols[0],ende:cols[1],thema:cols[2],text:cols[3],ort:cols[4],gruppe:cols[5]||''});count++;}
+        if(cols.length>=5){termine.push({begin:cols[0],ende:cols[1],thema:cols[2],text:cols[3],ort:cols[4],gruppe:cols[5]||'',isAktive:false});count++;}
       });
       render(); toast(`📂 ${count} Termin(e) importiert`);
     };
@@ -499,19 +620,30 @@
       const p=s=>{const[d,m,y]=s.split(' ')[0].split('.');return new Date(y,m-1,d);};
       return p(a.begin)-p(b.begin);
     });
-    $('listWrap').innerHTML='<div class="card-list">'+sorted.map(t=>`
-      <div class="card${t.serie?' sc':''}">
+    $('listWrap').innerHTML='<div class="card-list">'+sorted.map(t=>{
+      // Gruppe-Tag: Aktive (mehrere) oder Gruppe (eine)
+      let gruppeTag = '';
+      if(t.gruppe) {
+        if(t.isAktive) {
+          const names = t.gruppe.split(',').map(s=>s.trim()).filter(Boolean);
+          gruppeTag = `<span class="atag">🧑‍🚒 ${names.length} Aktive</span>`;
+        } else {
+          gruppeTag = `<span class="gtag">👥 ${esc(t.gruppe)}</span>`;
+        }
+      }
+      return `<div class="card${t.serie?' sc':''}">
         <div>
           <div class="card-thema">
             <span class="dot${t.serie?' s':''}"></span>
             ${esc(t.thema)}
             ${t.serie?'<span class="stag">SERIE</span>':''}
-            ${t.gruppe?`<span class="gtag">👥 ${esc(t.gruppe)}</span>`:''}
+            ${gruppeTag}
           </div>
           <div class="card-meta">
             <div class="meta-item"><span class="meta-lbl">Von</span>${esc(t.begin)}</div>
             <div class="meta-item"><span class="meta-lbl">Bis</span>${esc(t.ende)}</div>
             <div class="meta-item"><span class="meta-lbl">Ort</span>${esc(t.ort)}</div>
+            ${t.isAktive&&t.gruppe?`<div class="meta-item"><span class="meta-lbl">Aktive</span><span style="font-size:11px;color:var(--teal)">${esc(t.gruppe.split(',').slice(0,3).join(', '))}${t.gruppe.split(',').length>3?' …':''}</span></div>`:''}
           </div>
           ${t.text?`<div class="card-text">💬 ${esc(t.text)}</div>`:''}
         </div>
@@ -519,10 +651,11 @@
           <button class="btn-icon" onclick="editTermin(${t._i})" title="Bearbeiten">✏️</button>
           <button class="btn-icon del" onclick="deleteTermin(${t._i})" title="Löschen">🗑</button>
         </div>
-      </div>`).join('')+'</div>';
+      </div>`;
+    }).join('')+'</div>';
   }
 
-  document.querySelectorAll('input[type="text"]').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
+  document.querySelectorAll('input[type="text"]:not(#aktiveSearch):not(#s-aktiveSearch)').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
   updatePreview();
   render();
 </script>
