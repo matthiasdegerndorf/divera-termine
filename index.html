@@ -171,6 +171,29 @@
   .api-result-header { display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; margin-bottom:4px; }
   .api-result-detail { font-size:11px; color:var(--text-dim); font-family:var(--mono); }
 
+
+  /* ── API Log ── */
+  .log-entry { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; transition: border-color 0.15s; }
+  .log-entry:hover { border-color: var(--border2); }
+  .log-entry.log-ok   { border-left: 3px solid #2dc653; }
+  .log-entry.log-proxy { border-left: 3px solid var(--orange); }
+  .log-entry.log-error { border-left: 3px solid var(--accent); }
+  .log-entry.log-cors  { border-left: 3px solid var(--orange); }
+  .log-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .log-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; font-family: var(--sans); }
+  .log-badge.ok    { background: rgba(45,198,83,0.15); color: #2dc653; border: 1px solid #2dc653; }
+  .log-badge.proxy { background: rgba(244,162,97,0.15); color: var(--orange); border: 1px solid var(--orange); }
+  .log-badge.error { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+  .log-badge.cors  { background: rgba(244,162,97,0.15); color: var(--orange); border: 1px solid var(--orange); }
+  .log-title { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+  .log-time  { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+  .log-meta  { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--text-mid); }
+  .log-meta span { display: flex; align-items: center; gap: 4px; }
+  .log-detail { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+  .log-toggle { font-size: 11px; color: var(--blue); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--sans); }
+  .log-toggle:hover { text-decoration: underline; }
+  .log-payload { font-size: 10px; font-family: var(--mono); color: var(--text-dim); background: var(--surface2); border-radius: 4px; padding: 8px; margin-top: 6px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; display: none; }
+
   /* ── Konfig Modal ── */
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -213,7 +236,7 @@
 <body>
 
 <script>
-  const APP_VERSION = '2.0.2';
+  const APP_VERSION = '2.1.0';
   const APP_DATE    = '2026-05-01';
 </script>
 
@@ -228,6 +251,7 @@
   <div class="header-actions">
     <span class="version-badge" title="Versionsstand"><span class="version-dot"></span>v<span id="versionLabel"></span></span>
     <button class="btn btn-ghost-white btn-sm" onclick="sendAllToAPI()" id="apiBtn">🚀 An DIVERA senden</button>
+    <button class="btn btn-ghost-white btn-sm" onclick="openKonfig();switchKTab('log')" id="logBtn" title="API-Log anzeigen">📋 Log</button>
     <button class="btn btn-ghost-white btn-sm" onclick="openKonfig()">⚙️ Konfiguration</button>
     <button class="btn btn-ghost-white btn-sm" onclick="importCSV()">📂 Importieren</button>
     <button class="btn btn-ghost-white btn-sm" onclick="exportCSV()">💾 CSV Export</button>
@@ -492,6 +516,7 @@
       <button class="modal-tab" id="ktab-personen" onclick="switchKTab('personen')">🧑‍🚒 Personen</button>
       <button class="modal-tab" id="ktab-vorlagen" onclick="switchKTab('vorlagen')">⚡ Schnellvorlagen</button>
       <button class="modal-tab" id="ktab-api" onclick="switchKTab('api')">🔌 API / DIVERA</button>
+      <button class="modal-tab" id="ktab-log" onclick="switchKTab('log')">📋 API-Log</button>
     </div>
     <div class="modal-body">
 
@@ -600,6 +625,31 @@
         </div>
       </div>
 
+      <!-- API Log -->
+      <div class="modal-section" id="ksec-log">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <p class="cfg-info" style="margin:0">Alle API-Aufrufe werden hier protokolliert und bleiben nach dem Schließen der App erhalten.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="log-search" placeholder="🔍 Log durchsuchen …" oninput="renderLog()" style="flex:1;min-width:160px"/>
+          <select id="log-filter" onchange="renderLog()" style="width:130px">
+            <option value="">Alle</option>
+            <option value="ok">✅ Erfolg</option>
+            <option value="proxy">🔀 via Proxy</option>
+            <option value="error">❌ Fehler</option>
+            <option value="cors">⚠️ CORS</option>
+          </select>
+          <button class="cfg-btn del" onclick="clearLog()" title="Log löschen">🗑 Leeren</button>
+          <button class="cfg-btn" onclick="exportLog()" title="Log exportieren">💾 Export</button>
+        </div>
+        <div id="log-stats" style="font-size:11px;color:var(--text-dim);margin-bottom:10px"></div>
+        <div id="log-list" style="display:flex;flex-direction:column;gap:6px;max-height:380px;overflow-y:auto"></div>
+        <div id="log-empty" style="text-align:center;padding:40px;color:var(--text-dim);display:none">
+          <div style="font-size:32px;margin-bottom:8px">📋</div>
+          <div>Noch keine API-Aufrufe protokolliert.</div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeKonfig()">Schließen</button>
@@ -683,6 +733,31 @@
         </div>
       </div>
 
+      <!-- API Log -->
+      <div class="modal-section" id="ksec-log">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <p class="cfg-info" style="margin:0">Alle API-Aufrufe werden hier protokolliert und bleiben nach dem Schließen der App erhalten.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="log-search" placeholder="🔍 Log durchsuchen …" oninput="renderLog()" style="flex:1;min-width:160px"/>
+          <select id="log-filter" onchange="renderLog()" style="width:130px">
+            <option value="">Alle</option>
+            <option value="ok">✅ Erfolg</option>
+            <option value="proxy">🔀 via Proxy</option>
+            <option value="error">❌ Fehler</option>
+            <option value="cors">⚠️ CORS</option>
+          </select>
+          <button class="cfg-btn del" onclick="clearLog()" title="Log löschen">🗑 Leeren</button>
+          <button class="cfg-btn" onclick="exportLog()" title="Log exportieren">💾 Export</button>
+        </div>
+        <div id="log-stats" style="font-size:11px;color:var(--text-dim);margin-bottom:10px"></div>
+        <div id="log-list" style="display:flex;flex-direction:column;gap:6px;max-height:380px;overflow-y:auto"></div>
+        <div id="log-empty" style="text-align:center;padding:40px;color:var(--text-dim);display:none">
+          <div style="font-size:32px;margin-bottom:8px">📋</div>
+          <div>Noch keine API-Aufrufe protokolliert.</div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeEdit()">Abbrechen</button>
@@ -700,6 +775,31 @@
     </div>
     <div class="modal-body" style="max-height:400px;overflow-y:auto">
       <div id="apiResultContent"></div>
+      <!-- API Log -->
+      <div class="modal-section" id="ksec-log">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <p class="cfg-info" style="margin:0">Alle API-Aufrufe werden hier protokolliert und bleiben nach dem Schließen der App erhalten.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="log-search" placeholder="🔍 Log durchsuchen …" oninput="renderLog()" style="flex:1;min-width:160px"/>
+          <select id="log-filter" onchange="renderLog()" style="width:130px">
+            <option value="">Alle</option>
+            <option value="ok">✅ Erfolg</option>
+            <option value="proxy">🔀 via Proxy</option>
+            <option value="error">❌ Fehler</option>
+            <option value="cors">⚠️ CORS</option>
+          </select>
+          <button class="cfg-btn del" onclick="clearLog()" title="Log löschen">🗑 Leeren</button>
+          <button class="cfg-btn" onclick="exportLog()" title="Log exportieren">💾 Export</button>
+        </div>
+        <div id="log-stats" style="font-size:11px;color:var(--text-dim);margin-bottom:10px"></div>
+        <div id="log-list" style="display:flex;flex-direction:column;gap:6px;max-height:380px;overflow-y:auto"></div>
+        <div id="log-empty" style="text-align:center;padding:40px;color:var(--text-dim);display:none">
+          <div style="font-size:32px;margin-bottom:8px">📋</div>
+          <div>Noch keine API-Aufrufe protokolliert.</div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="$('apiResultModal').style.display='none'">Schließen</button>
@@ -1178,7 +1278,7 @@
   }
 
   function switchKTab(tab) {
-    ['gruppen','personen','vorlagen','api'].forEach(t => {
+    ['gruppen','personen','vorlagen','api','log'].forEach(t => {
       $('ktab-'+t).classList.toggle('active', t===tab);
       $('ksec-'+t).classList.toggle('active', t===tab);
     });
@@ -1186,6 +1286,7 @@
     if(tab==='personen') renderKPersonen();
     if(tab==='vorlagen') renderKVorlagen();
     if(tab==='api') loadAPIKonfig();
+    if(tab==='log') renderLog();
   }
 
   // ── Gruppen ──
@@ -1382,6 +1483,137 @@
   function escQ(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 
+
+  // ════════════════════════════════════════════
+  // API LOG
+  // ════════════════════════════════════════════
+  const LOG_KEY = 'divera_api_log';
+  const LOG_MAX = 500;
+
+  function getLogs() {
+    try { return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e) { return []; }
+  }
+
+  function saveLogs(logs) {
+    localStorage.setItem(LOG_KEY, JSON.stringify(logs.slice(-LOG_MAX)));
+  }
+
+  function addLog(entry) {
+    const logs = getLogs();
+    logs.push({
+      ts:      Date.now(),
+      status:  entry.status,   // 'ok' | 'proxy' | 'error' | 'cors'
+      thema:   entry.thema,
+      begin:   entry.begin,
+      ende:    entry.ende,
+      ort:     entry.ort,
+      gruppe:  entry.gruppe || '',
+      divera_id: entry.divera_id || null,
+      http_status: entry.http_status || null,
+      msg:     entry.msg || '',
+      method:  entry.method || 'direct',
+      payload: entry.payload || null,
+      profil:  entry.profil || ''
+    });
+    saveLogs(logs);
+  }
+
+  function clearLog() {
+    if (!confirm('Alle ' + getLogs().length + ' Log-Einträge löschen?')) return;
+    localStorage.removeItem(LOG_KEY);
+    renderLog();
+    toast('🗑 Log geleert', 'var(--accent)', '#fff');
+  }
+
+  function exportLog() {
+    const logs = getLogs();
+    if (!logs.length) { toast('⚠️ Log ist leer', 'var(--orange)', '#fff'); return; }
+    const lines = ['Zeitstempel;Status;Thema;Beginn;Ende;Ort;Gruppe;DIVERA-ID;HTTP;Methode;Profil;Meldung'];
+    logs.forEach(l => {
+      const row = [
+        new Date(l.ts).toLocaleString('de-DE'),
+        l.status, l.thema, l.begin, l.ende, l.ort, l.gruppe,
+        l.divera_id || '', l.http_status || '', l.method, l.profil,
+        (l.msg || '').replace(/;/g, ',').substring(0, 200)
+      ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(';');
+      lines.push(row);
+    });
+    const csv = lines.join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = 'divera-api-log-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+    toast('💾 Log exportiert (' + logs.length + ' Einträge)');
+  }
+
+  function renderLog() {
+    const logs = getLogs().slice().reverse(); // neueste zuerst
+    const search = ($('log-search')?.value || '').toLowerCase();
+    const filter = $('log-filter')?.value || '';
+
+    let filtered = logs.filter(l => {
+      if (filter && l.status !== filter) return false;
+      if (search && !JSON.stringify(l).toLowerCase().includes(search)) return false;
+      return true;
+    });
+
+    // Stats
+    const all = logs.length;
+    const ok  = logs.filter(l => l.status === 'ok' || l.status === 'proxy').length;
+    const err = logs.filter(l => l.status === 'error' || l.status === 'cors').length;
+    const stats = $('log-stats');
+    if (stats) stats.textContent = all + ' Einträge gesamt · ' + ok + ' erfolgreich · ' + err + ' Fehler · Letzter: ' +
+      (logs[0] ? new Date(logs[0].ts).toLocaleString('de-DE') : '—');
+
+    const list  = $('log-list');
+    const empty = $('log-empty');
+    if (!list) return;
+
+    if (!filtered.length) {
+      list.innerHTML = '';
+      if (empty) empty.style.display = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    list.innerHTML = filtered.map((l, idx) => {
+      const dt = new Date(l.ts).toLocaleString('de-DE');
+      const badgeClass = l.status === 'ok' ? 'ok' : l.status === 'proxy' ? 'proxy' : l.status === 'cors' ? 'cors' : 'error';
+      const badgeLabel = l.status === 'ok' ? '✅ Direkt OK' : l.status === 'proxy' ? '🔀 Proxy OK' : l.status === 'cors' ? '⚠️ CORS' : '❌ Fehler';
+      const payloadJson = l.payload ? JSON.stringify(l.payload, null, 2) : '';
+      return '<div class="log-entry log-' + badgeClass + '">' +
+        '<div class="log-header">' +
+          '<span class="log-badge ' + badgeClass + '">' + badgeLabel + '</span>' +
+          '<span class="log-title">' + esc(l.thema) + '</span>' +
+          '<span class="log-time">' + dt + '</span>' +
+        '</div>' +
+        '<div class="log-meta">' +
+          '<span>📅 ' + esc(l.begin) + '</span>' +
+          '<span>⏹ ' + esc(l.ende) + '</span>' +
+          (l.ort ? '<span>📍 ' + esc(l.ort) + '</span>' : '') +
+          (l.gruppe ? '<span>👥 ' + esc(l.gruppe.length > 40 ? l.gruppe.substring(0,40)+'…' : l.gruppe) + '</span>' : '') +
+          (l.divera_id ? '<span style="color:var(--teal)">🆔 ' + l.divera_id + '</span>' : '') +
+          (l.profil ? '<span>🔑 ' + esc(l.profil) + '</span>' : '') +
+        '</div>' +
+        (l.msg ? '<div style="margin-top:5px;font-size:11px;color:var(--accent)">' + esc(l.msg.substring(0,200)) + '</div>' : '') +
+        (payloadJson ? '<div class="log-detail"><button class="log-toggle" onclick="togglePayload(this)">▶ JSON-Payload anzeigen</button><pre class="log-payload">' + esc(payloadJson) + '</pre></div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  function togglePayload(btn) {
+    const pre = btn.nextElementSibling;
+    const open = pre.style.display !== 'none' && pre.style.display !== '';
+    pre.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? '▶ JSON-Payload anzeigen' : '▼ JSON-Payload verbergen';
+  }
+
+  // Badge in header showing unsent log errors
+  function updateLogBadge() {
+    const errors = getLogs().filter(l => l.status === 'error' || l.status === 'cors').length;
+    // Could add a badge to header button — keep simple for now
+  }
+
   // ════════════════════════════════════════════
   // DIVERA API
   // ════════════════════════════════════════════
@@ -1440,6 +1672,10 @@
     if (!p) return;
     $('cfg-accesskey').value = p.accesskey;
     $('cfg-clusterid').value = p.clusterid;
+    // Store profile name for logging
+    const k2 = getAPIKonfig();
+    k2._profileName = p.name;
+    localStorage.setItem('divera_api_konfig', JSON.stringify({...k2, accesskey: p.accesskey, clusterid: p.clusterid, _profileName: p.name}));
     Object.keys(PROFILES).forEach(k => {
       const btn = $('profile-' + k);
       if (btn) btn.classList.toggle('active-mode', k === key);
@@ -1551,9 +1787,12 @@
       });
       if (resp.ok) {
         const data = await resp.json();
-        return { ok: true, id: data?.data?.id, payload, method: 'direct' };
+        const logId = data?.data?.id;
+        addLog({ status:'ok', thema:t.thema, begin:t.begin, ende:t.ende, ort:t.ort, gruppe:t.gruppe||'', divera_id:logId, method:'direct', payload, profil: getAPIKonfig()._profileName||'' });
+        return { ok: true, id: logId, payload, method: 'direct' };
       } else {
         const txt = await resp.text();
+        addLog({ status:'error', thema:t.thema, begin:t.begin, ende:t.ende, ort:t.ort, groupe:t.groupe||'', http_status:resp.status, msg:txt.substring(0,300), method:'direct', payload, profil: getAPIKonfig()._profileName||'' });
         return { ok: false, status: resp.status, msg: txt, payload };
       }
     } catch(e) {
@@ -1567,13 +1806,17 @@
         });
         if (resp2.ok) {
           const data2 = await resp2.json();
-          return { ok: true, id: data2?.data?.id, payload, method: 'proxy' };
+          const logId2 = data2?.data?.id;
+          addLog({ status:'proxy', thema:t.thema, begin:t.begin, ende:t.ende, ort:t.ort, gruppe:t.gruppe||'', divera_id:logId2, method:'proxy', payload, profil: getAPIKonfig()._profileName||'' });
+          return { ok: true, id: logId2, payload, method: 'proxy' };
         } else {
           const txt2 = await resp2.text();
+          addLog({ status:'error', thema:t.thema, begin:t.begin, ende:t.ende, ort:t.ort, gruppe:t.gruppe||'', http_status:resp2.status, msg:txt2.substring(0,300), method:'proxy', payload, profil: getAPIKonfig()._profileName||'' });
           return { ok: false, status: resp2.status, msg: txt2, payload };
         }
       } catch(e2) {
-        return { ok: false, cors: true, msg: 'Direct: ' + e.message + ' | Proxy: ' + e2.message, payload };
+        addLog({ status:'cors', thema:t.thema, begin:t.begin, ende:t.ende, ort:t.ort, gruppe:t.gruppe||'', msg:'Direct: '+e.message+' | Proxy: '+e2.message, method:'cors', payload, profil: getAPIKonfig()._profileName||'' });
+      return { ok: false, cors: true, msg: 'Direct: ' + e.message + ' | Proxy: ' + e2.message, payload };
       }
     }
   }
