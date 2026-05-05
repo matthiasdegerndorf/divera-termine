@@ -213,7 +213,7 @@
 <body>
 
 <script>
-  const APP_VERSION = '2.0.1';
+  const APP_VERSION = '2.0.2';
   const APP_DATE    = '2026-05-01';
 </script>
 
@@ -561,7 +561,7 @@
         <div class="form-group">
           <label>Cluster ID (Standort)</label>
           <input type="text" id="cfg-clusterid" value="4026" placeholder="z.B. 4026"/>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Deine Cluster-ID: <strong style="color:var(--teal)">4026</strong> (Feuerwehr Degerndorf)</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">FFD: <strong style="color:var(--teal)">4026</strong> | Testeinheit: <strong style="color:var(--teal)">31732</strong> (wird automatisch gesetzt beim Profilwechsel)</div>
         </div>
 
         <div class="form-group">
@@ -644,7 +644,7 @@
         <div class="form-group">
           <label>Cluster ID (Standort)</label>
           <input type="text" id="cfg-clusterid" value="4026" placeholder="z.B. 4026"/>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Deine Cluster-ID: <strong style="color:var(--teal)">4026</strong> (Feuerwehr Degerndorf)</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">FFD: <strong style="color:var(--teal)">4026</strong> | Testeinheit: <strong style="color:var(--teal)">31732</strong> (wird automatisch gesetzt beim Profilwechsel)</div>
         </div>
 
         <div class="form-group">
@@ -1432,7 +1432,7 @@
 
   const PROFILES = {
     ffd:  { name: 'Feuerwehr Degerndorf', accesskey: 'Uv6ekHRd17D_kWWiepcdlJwBeT5XySkcBaGVFa-jBDnOb7QTkyRBf95PxEZji-DO', clusterid: '4026' },
-    test: { name: 'Testeinheit',          accesskey: '-w6LcvGkAIvpwA0aaB9ypfcbZiY7oX67YFcVYZK_mcagHTfTa2JFCniO3trpozpG', clusterid: '4026' }
+    test: { name: 'Testeinheit',          accesskey: '-w6LcvGkAIvpwA0aaB9ypfcbZiY7oX67YFcVYZK_mcagHTfTa2JFCniO3trpozpG', clusterid: '31732' }
   };
 
   function selectProfile(key) {
@@ -1538,24 +1538,43 @@
 
   async function sendToAPI(t, konfig) {
     const payload = buildPayload(t, konfig);
-    const url = konfig.apiurl || 'https://app.divera247.com/api/v2/events';
+    const baseUrl = konfig.apiurl || 'https://app.divera247.com/api/v2/events';
     const accesskey = konfig.accesskey;
+    const directUrl = baseUrl + '?accesskey=' + encodeURIComponent(accesskey);
 
+    // Try direct first
     try {
-      const resp = await fetch(url + '?accesskey=' + encodeURIComponent(accesskey), {
+      const resp = await fetch(directUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ event: payload })
       });
       if (resp.ok) {
         const data = await resp.json();
-        return { ok: true, id: data?.data?.id, payload };
+        return { ok: true, id: data?.data?.id, payload, method: 'direct' };
       } else {
         const txt = await resp.text();
         return { ok: false, status: resp.status, msg: txt, payload };
       }
     } catch(e) {
-      return { ok: false, cors: true, msg: e.message, payload };
+      // Direct blocked by CORS → try corsproxy.io
+      try {
+        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(directUrl);
+        const resp2 = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ event: payload })
+        });
+        if (resp2.ok) {
+          const data2 = await resp2.json();
+          return { ok: true, id: data2?.data?.id, payload, method: 'proxy' };
+        } else {
+          const txt2 = await resp2.text();
+          return { ok: false, status: resp2.status, msg: txt2, payload };
+        }
+      } catch(e2) {
+        return { ok: false, cors: true, msg: 'Direct: ' + e.message + ' | Proxy: ' + e2.message, payload };
+      }
     }
   }
 
@@ -1607,7 +1626,7 @@
       ok.forEach(r => {
         html += `<div class="api-result-item ok" style="border-left:3px solid #2dc653">
           <div class="api-result-header" style="font-size:12px">✓ ${esc(r.termin.thema)} – ${esc(r.termin.begin)}</div>
-          <div class="api-result-detail">DIVERA ID: ${r.result.id || '—'}</div>
+          <div class="api-result-detail">DIVERA ID: ${r.result.id || '—'} ${r.result.method==='proxy'?'<span style="color:var(--orange)">(via Proxy)</span>':''}</div>
         </div>`;
       });
     }
@@ -1643,19 +1662,33 @@
 
   async function testAPIConnection() {
     const key = $('cfg-accesskey').value.trim();
-    const url = $('cfg-apiurl').value.trim();
     const status = $('cfg-api-status');
     if (!key) { status.textContent = '⚠️ Kein Accesskey eingegeben'; status.style.color = 'var(--orange)'; return; }
-    status.textContent = '⏳ Teste Verbindung …'; status.style.color = 'var(--text-dim)';
+    status.textContent = '⏳ Teste direkte Verbindung …'; status.style.color = 'var(--text-dim)';
+    const testUrl = 'https://app.divera247.com/api/v2/pull/all?accesskey=' + encodeURIComponent(key);
     try {
-      const resp = await fetch('https://app.divera247.com/api/v2/pull/all?accesskey=' + encodeURIComponent(key));
+      const resp = await fetch(testUrl);
       if (resp.ok) {
-        status.textContent = '✅ Verbindung erfolgreich!'; status.style.color = 'var(--green)';
+        status.textContent = '✅ Direkte Verbindung OK!'; status.style.color = 'var(--green)'; return;
       } else {
-        status.textContent = '❌ Fehler: HTTP ' + resp.status; status.style.color = 'var(--accent)';
+        status.textContent = '❌ HTTP ' + resp.status; status.style.color = 'var(--accent)'; return;
       }
     } catch(e) {
-      status.textContent = '⚠️ CORS-Blockierung (API erreichbar, aber Browser blockiert)'; status.style.color = 'var(--orange)';
+      status.textContent = '⏳ CORS blockiert – teste Proxy …'; status.style.color = 'var(--text-dim)';
+    }
+    // Try proxy
+    try {
+      const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(testUrl);
+      const resp2 = await fetch(proxyUrl);
+      if (resp2.ok) {
+        const data = await resp2.json();
+        const name = data?.data?.cluster?.name || data?.data?.ucr?.[Object.keys(data?.data?.ucr||{})[0]]?.name || 'Verbunden';
+        status.textContent = '✅ Proxy OK – Einheit: ' + name; status.style.color = 'var(--green)';
+      } else {
+        status.textContent = '❌ Proxy-Fehler: HTTP ' + resp2.status; status.style.color = 'var(--accent)';
+      }
+    } catch(e2) {
+      status.textContent = '❌ Kein Zugriff möglich (Direct + Proxy blockiert)'; status.style.color = 'var(--accent)';
     }
   }
 
