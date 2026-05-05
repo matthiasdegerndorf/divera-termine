@@ -162,6 +162,15 @@
   .m-slot-remove:hover { color: var(--accent); background: var(--accent-dim); }
 
 
+
+  /* API Result */
+  .api-result-item { padding:10px 12px; border-radius:var(--r); margin-bottom:8px; border:1px solid var(--border); }
+  .api-result-item.ok { border-color:#2dc653; background:rgba(45,198,83,0.08); }
+  .api-result-item.err { border-color:var(--accent); background:var(--accent-dim); }
+  .api-result-item.warn { border-color:var(--orange); background:rgba(244,162,97,0.1); }
+  .api-result-header { display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; margin-bottom:4px; }
+  .api-result-detail { font-size:11px; color:var(--text-dim); font-family:var(--mono); }
+
   /* ── Konfig Modal ── */
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -204,7 +213,7 @@
 <body>
 
 <script>
-  const APP_VERSION = '1.6.1';
+  const APP_VERSION = '2.0.1';
   const APP_DATE    = '2026-05-01';
 </script>
 
@@ -218,6 +227,7 @@
   </div>
   <div class="header-actions">
     <span class="version-badge" title="Versionsstand"><span class="version-dot"></span>v<span id="versionLabel"></span></span>
+    <button class="btn btn-ghost-white btn-sm" onclick="sendAllToAPI()" id="apiBtn">🚀 An DIVERA senden</button>
     <button class="btn btn-ghost-white btn-sm" onclick="openKonfig()">⚙️ Konfiguration</button>
     <button class="btn btn-ghost-white btn-sm" onclick="importCSV()">📂 Importieren</button>
     <button class="btn btn-ghost-white btn-sm" onclick="exportCSV()">💾 CSV Export</button>
@@ -481,6 +491,7 @@
       <button class="modal-tab active" id="ktab-gruppen" onclick="switchKTab('gruppen')">👥 Gruppen</button>
       <button class="modal-tab" id="ktab-personen" onclick="switchKTab('personen')">🧑‍🚒 Personen</button>
       <button class="modal-tab" id="ktab-vorlagen" onclick="switchKTab('vorlagen')">⚡ Schnellvorlagen</button>
+      <button class="modal-tab" id="ktab-api" onclick="switchKTab('api')">🔌 API / DIVERA</button>
     </div>
     <div class="modal-body">
 
@@ -522,6 +533,73 @@
         </div>
       </div>
 
+
+      <!-- API Konfiguration -->
+      <div class="modal-section" id="ksec-api">
+        <p class="cfg-info">DIVERA 24/7 API-Einstellungen. Der Accesskey wird nur lokal im Browser gespeichert und nie weitergegeben.</p>
+
+        <div class="form-group">
+          <label>Profil / Einheit</label>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="gruppe-mode-toggle" style="grid-template-columns:1fr 1fr">
+              <button class="mode-btn active-mode" id="profile-ffd" onclick="selectProfile('ffd')" style="font-size:11px">🚒 Feuerwehr Degerndorf</button>
+              <button class="mode-btn" id="profile-test" onclick="selectProfile('test')" style="font-size:11px">🧪 Testeinheit</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Wähle das Profil oder trage einen eigenen Accesskey ein.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Accesskey</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="cfg-accesskey" placeholder="Accesskey eingeben …" style="flex:1;font-family:var(--mono);font-size:11px"/>
+            <button class="cfg-btn" onclick="toggleAccesskeyVis()" id="akToggle" style="flex-shrink:0;padding:6px 10px">👁 Anzeigen</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Zu finden in DIVERA unter: Profil → API-Zugang</div>
+        </div>
+
+        <div class="form-group">
+          <label>Cluster ID (Standort)</label>
+          <input type="text" id="cfg-clusterid" value="4026" placeholder="z.B. 4026"/>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Deine Cluster-ID: <strong style="color:var(--teal)">4026</strong> (Feuerwehr Degerndorf)</div>
+        </div>
+
+        <div class="form-group">
+          <label>API-Endpunkt</label>
+          <input type="text" id="cfg-apiurl" value="https://app.divera247.com/api/v2/events" style="font-family:var(--mono);font-size:11px"/>
+        </div>
+
+        <div class="form-group">
+          <label>Standard-Einstellungen für Termine</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-push" checked style="width:16px;height:16px;accent-color:var(--teal)"/> Push-Benachrichtigung
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-mail" style="width:16px;height:16px;accent-color:var(--teal)"/> E-Mail senden
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-reminder" checked style="width:16px;height:16px;accent-color:var(--teal)"/> Erinnerung senden
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-private-mode" style="width:16px;height:16px;accent-color:var(--teal)"/> Privater Modus
+            </label>
+          </div>
+        </div>
+
+        <div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-top:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Verbindungstest</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="testAPIConnection()">🔍 Verbindung testen</button>
+            <span id="cfg-api-status" style="font-size:12px;color:var(--text-dim)">—</span>
+          </div>
+        </div>
+
+        <div style="padding-top:14px;border-top:1px solid var(--border);margin-top:14px">
+          <button class="btn btn-red" onclick="saveAPIKonfig()" style="width:100%">💾 API-Konfiguration speichern</button>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeKonfig()">Schließen</button>
@@ -538,10 +616,93 @@
     </div>
     <div class="modal-body" style="padding:20px 24px">
       <div class="form-group"><label id="editDialogLabel">Name</label><input type="text" id="editDialogInput"/></div>
+
+      <!-- API Konfiguration -->
+      <div class="modal-section" id="ksec-api">
+        <p class="cfg-info">DIVERA 24/7 API-Einstellungen. Der Accesskey wird nur lokal im Browser gespeichert und nie weitergegeben.</p>
+
+        <div class="form-group">
+          <label>Profil / Einheit</label>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="gruppe-mode-toggle" style="grid-template-columns:1fr 1fr">
+              <button class="mode-btn active-mode" id="profile-ffd" onclick="selectProfile('ffd')" style="font-size:11px">🚒 Feuerwehr Degerndorf</button>
+              <button class="mode-btn" id="profile-test" onclick="selectProfile('test')" style="font-size:11px">🧪 Testeinheit</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Wähle das Profil oder trage einen eigenen Accesskey ein.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Accesskey</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="cfg-accesskey" placeholder="Accesskey eingeben …" style="flex:1;font-family:var(--mono);font-size:11px"/>
+            <button class="cfg-btn" onclick="toggleAccesskeyVis()" id="akToggle" style="flex-shrink:0;padding:6px 10px">👁 Anzeigen</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Zu finden in DIVERA unter: Profil → API-Zugang</div>
+        </div>
+
+        <div class="form-group">
+          <label>Cluster ID (Standort)</label>
+          <input type="text" id="cfg-clusterid" value="4026" placeholder="z.B. 4026"/>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Deine Cluster-ID: <strong style="color:var(--teal)">4026</strong> (Feuerwehr Degerndorf)</div>
+        </div>
+
+        <div class="form-group">
+          <label>API-Endpunkt</label>
+          <input type="text" id="cfg-apiurl" value="https://app.divera247.com/api/v2/events" style="font-family:var(--mono);font-size:11px"/>
+        </div>
+
+        <div class="form-group">
+          <label>Standard-Einstellungen für Termine</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-push" checked style="width:16px;height:16px;accent-color:var(--teal)"/> Push-Benachrichtigung
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-mail" style="width:16px;height:16px;accent-color:var(--teal)"/> E-Mail senden
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-send-reminder" checked style="width:16px;height:16px;accent-color:var(--teal)"/> Erinnerung senden
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text-mid);cursor:pointer">
+              <input type="checkbox" id="cfg-private-mode" style="width:16px;height:16px;accent-color:var(--teal)"/> Privater Modus
+            </label>
+          </div>
+        </div>
+
+        <div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-top:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Verbindungstest</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="testAPIConnection()">🔍 Verbindung testen</button>
+            <span id="cfg-api-status" style="font-size:12px;color:var(--text-dim)">—</span>
+          </div>
+        </div>
+
+        <div style="padding-top:14px;border-top:1px solid var(--border);margin-top:14px">
+          <button class="btn btn-red" onclick="saveAPIKonfig()" style="width:100%">💾 API-Konfiguration speichern</button>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeEdit()">Abbrechen</button>
       <button class="btn btn-red" onclick="saveEdit()">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- API Ergebnis Modal -->
+<div class="modal-overlay" id="apiResultModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="apiResultTitle">🚀 DIVERA API – Ergebnis</div>
+      <button class="modal-close" onclick="$('apiResultModal').style.display='none'">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:400px;overflow-y:auto">
+      <div id="apiResultContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="$('apiResultModal').style.display='none'">Schließen</button>
     </div>
   </div>
 </div>
@@ -1017,13 +1178,14 @@
   }
 
   function switchKTab(tab) {
-    ['gruppen','personen','vorlagen'].forEach(t => {
+    ['gruppen','personen','vorlagen','api'].forEach(t => {
       $('ktab-'+t).classList.toggle('active', t===tab);
       $('ksec-'+t).classList.toggle('active', t===tab);
     });
     if(tab==='gruppen') renderKGruppen();
     if(tab==='personen') renderKPersonen();
     if(tab==='vorlagen') renderKVorlagen();
+    if(tab==='api') loadAPIKonfig();
   }
 
   // ── Gruppen ──
@@ -1219,11 +1381,290 @@
 
   function escQ(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
+
+  // ════════════════════════════════════════════
+  // DIVERA API
+  // ════════════════════════════════════════════
+
+  const GROUP_ID_MAP = {
+    "Absturzsicherung": 7846, "Aggregat Feuerwehrhaus": 178960, "Alarm-Info": 26563,
+    "Alarmierung": 8178, "Alarmierung_Bürgermeister": 166137, "Atemschutzgeräteträger": 9768,
+    "Ausbildungsgruppe": 118055, "Fahrzeugbeschaffung": 143937, "FFD Ausschuß": 7800,
+    "FFD Ausschuss": 7800, "Flughelfer": 176413, "Frauen_FFD": 91479,
+    "Gaufest2025": 178589, "Gefahrgutzug": 7801, "Gruppenführer": 7799,
+    "Jugendgruppe": 93790, "Leistungsabzeichen_THL": 193866, "Maschinisten": 64048,
+    "Motorsäge": 12986, "Probealarm": 194013, "SmokeAlarm": 182306,
+    "Social Media": 176412, "Verwaltung": 13412, "Vorstand": 9132, "Wassermeister": 139796
+  };
+
+  const PERSON_ID_MAP = {
+    "Christina Antretter": 323818, "Martin Antretter": 364163, "Korbinian Astner": 641130,
+    "Magdalena Astner": 108803, "Michael Astner": 730712, "Sebastian Astner": 302616,
+    "Thomas Astner": 638789, "Veronika Astner": 507793, "Johannes Bachleitner": 84277,
+    "Franz Berger": 71818, "Hubert Berger": 65134, "Markus Berger": 65131,
+    "Martin Berger": 71807, "Sebastian Bichler jun.": 477248, "Sebastian Bichler sen.": 83759,
+    "Anton Braun": 84264, "Michael Braun": 103807, "Theresa Braun": 477250,
+    "Anton Braun jun.": 103806, "Andreas Buchberger": 64665, "Hans Buchberger": 65136,
+    "Johannes Buchberger": 83750, "Markus Buchberger": 101210, "Sebastian Buchberger": 103755,
+    "Thomas Buchberger": 263388, "Hubert Estner": 796613, "Michael Feicht": 87780,
+    "Ludwig Franz": 817013, "Maximilian Franz": 477246, "Michael Franz": 70056,
+    "Anton Grad": 648776, "Johannes Grad": 786174, "Sebastian Grad": 83751,
+    "Christoph Grebl": 423514, "Georg Hartig": 323144, "Lukas Hartig": 70052,
+    "Hanna Herbster": 694800, "Florian Hörhammer": 70055, "Matthias Horne": 83748,
+    "Korbinian Huber": 71808, "Elias Jakob": 787984, "Mareissa Kirmair": 460741,
+    "Rudolf Kirmair": 322776, "Thomas Kirmair": 331249, "Florian Kolb": 71806,
+    "Magdalena Kuchler": 89711, "Matthias Kuchler": 63014, "Carsten Kumbein": 71804,
+    "Benedikt Kürmeier": 477252, "Adrian Lackovic": 530195, "Josip Lackovic": 64682,
+    "Julia Lochner": 102644, "Andreas Madersbacher": 492812, "Simon Madersbacher": 533387,
+    "Leon Markl": 103808, "Andreas Mikesch": 138912, "Klaus Moser": 775193,
+    "Stefan Muhr": 93407, "Benedikt Müller": 542131, "Lea Müller": 102645,
+    "Maximillian Müller": 786176, "Josef Nagl": 80847, "Michael Nagl": 335087,
+    "Sepp Oberauer": 74966, "Thomas Obermair": 333571, "Sophia Rendell": 806623,
+    "Marcel Ruschke": 777984, "Ludwig Sailer": 450393, "Maximilian Schmidt": 231284,
+    "Philipp Schmidt": 103814, "Andre Schumann": 84280, "Jochen Schuppe": 87781,
+    "Pascal Schuppe": 181960, "Martin Siller": 201367, "Wieland Siller": 230783,
+    "Martin Stadler": 332103, "Josef Steer": 71419, "Josef Simon Steer": 477261,
+    "Markus Steer": 789799, "Martin Steer": 486674, "Tobias Stuhlreiter": 70054,
+    "Stephan Tobien": 74192, "Lukas Urscher": 572971, "Simon Weber": 282699,
+    "Christian Zweckstätter": 71802, "Elias Zweckstätter": 694799
+  };
+
+
+  const PROFILES = {
+    ffd:  { name: 'Feuerwehr Degerndorf', accesskey: 'Uv6ekHRd17D_kWWiepcdlJwBeT5XySkcBaGVFa-jBDnOb7QTkyRBf95PxEZji-DO', clusterid: '4026' },
+    test: { name: 'Testeinheit',          accesskey: '-w6LcvGkAIvpwA0aaB9ypfcbZiY7oX67YFcVYZK_mcagHTfTa2JFCniO3trpozpG', clusterid: '4026' }
+  };
+
+  function selectProfile(key) {
+    const p = PROFILES[key];
+    if (!p) return;
+    $('cfg-accesskey').value = p.accesskey;
+    $('cfg-clusterid').value = p.clusterid;
+    Object.keys(PROFILES).forEach(k => {
+      const btn = $('profile-' + k);
+      if (btn) btn.classList.toggle('active-mode', k === key);
+    });
+    toast('Profil „' + p.name + '" geladen');
+  }
+
+  // Load saved API config
+  function loadAPIKonfig() {
+    const saved = localStorage.getItem('divera_api_konfig');
+    if (saved) {
+      try {
+        const k = JSON.parse(saved);
+        if (k.accesskey) $('cfg-accesskey').value = k.accesskey;
+        if (k.clusterid) $('cfg-clusterid').value = k.clusterid;
+        if (k.apiurl)    $('cfg-apiurl').value    = k.apiurl;
+        if (k.send_push !== undefined)     $('cfg-send-push').checked     = k.send_push;
+        if (k.send_mail !== undefined)     $('cfg-send-mail').checked     = k.send_mail;
+        if (k.send_reminder !== undefined) $('cfg-send-reminder').checked = k.send_reminder;
+        if (k.private_mode !== undefined)  $('cfg-private-mode').checked  = k.private_mode;
+      } catch(e) {}
+    }
+  }
+
+  function saveAPIKonfig() {
+    const konfig = {
+      accesskey:    $('cfg-accesskey').value.trim(),
+      clusterid:    $('cfg-clusterid').value.trim(),
+      apiurl:       $('cfg-apiurl').value.trim(),
+      send_push:    $('cfg-send-push').checked,
+      send_mail:    $('cfg-send-mail').checked,
+      send_reminder: $('cfg-send-reminder').checked,
+      private_mode:  $('cfg-private-mode').checked
+    };
+    localStorage.setItem('divera_api_konfig', JSON.stringify(konfig));
+    toast('✅ API-Konfiguration gespeichert','var(--green)','#071a0c');
+  }
+
+  function getAPIKonfig() {
+    const saved = localStorage.getItem('divera_api_konfig');
+    return saved ? JSON.parse(saved) : {};
+  }
+
+  function toggleAccesskeyVis() {
+    const el = $('cfg-accesskey');
+    if (el.type === 'password') {
+      el.type = 'text'; $('akToggle').textContent = '🙈 Verbergen';
+    } else {
+      el.type = 'password'; $('akToggle').textContent = '👁 Anzeigen';
+    }
+  }
+
+  // Build DIVERA API payload from a termin object
+  function buildPayload(t, konfig) {
+    // Parse date: DD.MM.YYYY HH:MM
+    function toUnix(csvDT) {
+      const [datePart, timePart] = csvDT.trim().split(' ');
+      const [d, m, y] = datePart.split('.');
+      const [h, min] = timePart.split(':');
+      return Math.floor(new Date(+y, +m-1, +d, +h, +min, 0).getTime() / 1000);
+    }
+
+    const payload = {
+      title: t.thema,
+      text: t.text || '',
+      address: t.ort || '',
+      date: toUnix(t.begin),
+      date_end: toUnix(t.ende),
+      private_mode: konfig.private_mode || false,
+      send_push: konfig.send_push !== false,
+      send_mail: konfig.send_mail || false,
+      send_reminder: konfig.send_reminder !== false,
+    };
+
+    if (t.isAktive && t.gruppe) {
+      // Aktive → user_cluster_relation IDs
+      const names = t.gruppe.split(',').map(s => s.trim()).filter(Boolean);
+      const ids = names.map(n => PERSON_ID_MAP[n]).filter(Boolean);
+      if (ids.length > 0) {
+        payload.notification_type = 4;
+        payload.user_cluster_relation = ids;
+      } else {
+        payload.notification_type = 2; // Alle des Standorts
+      }
+    } else if (t.gruppe && GROUP_ID_MAP[t.gruppe]) {
+      // Gruppe → group ID
+      payload.notification_type = 3;
+      payload.group = [GROUP_ID_MAP[t.gruppe]];
+    } else {
+      // Kein Empfänger → Alle des Standorts
+      payload.notification_type = 2;
+    }
+
+    return payload;
+  }
+
+  async function sendToAPI(t, konfig) {
+    const payload = buildPayload(t, konfig);
+    const url = konfig.apiurl || 'https://app.divera247.com/api/v2/events';
+    const accesskey = konfig.accesskey;
+
+    try {
+      const resp = await fetch(url + '?accesskey=' + encodeURIComponent(accesskey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ event: payload })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        return { ok: true, id: data?.data?.id, payload };
+      } else {
+        const txt = await resp.text();
+        return { ok: false, status: resp.status, msg: txt, payload };
+      }
+    } catch(e) {
+      return { ok: false, cors: true, msg: e.message, payload };
+    }
+  }
+
+  async function sendAllToAPI() {
+    if (!termine.length) { toast('⚠️ Keine Termine vorhanden!','var(--orange)','#fff'); return; }
+    const konfig = getAPIKonfig();
+    if (!konfig.accesskey) {
+      toast('⚠️ Kein Accesskey konfiguriert! Bitte zuerst in ⚙️ Konfiguration → API/DIVERA eintragen.','var(--orange)','#fff');
+      setTimeout(() => { openKonfig(); switchKTab('api'); }, 800);
+      return;
+    }
+
+    const btn = $('apiBtn');
+    btn.textContent = '⏳ Sende …';
+    btn.disabled = true;
+
+    const results = [];
+    for (const t of termine) {
+      const r = await sendToAPI(t, konfig);
+      results.push({ termin: t, result: r });
+    }
+
+    btn.textContent = '🚀 An DIVERA senden';
+    btn.disabled = false;
+
+    showAPIResults(results);
+  }
+
+  function showAPIResults(results) {
+    const ok   = results.filter(r => r.result.ok);
+    const err  = results.filter(r => !r.result.ok && !r.result.cors);
+    const cors = results.filter(r => r.result.cors);
+
+    let html = '';
+
+    if (cors.length > 0) {
+      html += `<div class="api-result-item warn">
+        <div class="api-result-header">⚠️ CORS-Blockierung erkannt</div>
+        <div class="api-result-detail">Der Browser blockiert den direkten API-Aufruf von dieser Domain. Das ist ein bekanntes Problem bei GitHub Pages.<br><br>
+        <strong style="color:var(--orange)">Lösung:</strong> Die Termine wurden als JSON vorbereitet. Du kannst sie manuell über das DIVERA API-Portal oder einen Proxy-Server einspielen.<br><br>
+        Der korrekte Accesskey und alle Payloads sind unten aufgelistet.</div>
+      </div>`;
+    }
+
+    if (ok.length > 0) {
+      html += `<div class="api-result-item ok">
+        <div class="api-result-header">✅ ${ok.length} Termin(e) erfolgreich übertragen</div>
+      </div>`;
+      ok.forEach(r => {
+        html += `<div class="api-result-item ok" style="border-left:3px solid #2dc653">
+          <div class="api-result-header" style="font-size:12px">✓ ${esc(r.termin.thema)} – ${esc(r.termin.begin)}</div>
+          <div class="api-result-detail">DIVERA ID: ${r.result.id || '—'}</div>
+        </div>`;
+      });
+    }
+
+    if (err.length > 0) {
+      html += `<div class="api-result-item err">
+        <div class="api-result-header">❌ ${err.length} Fehler</div>
+      </div>`;
+      err.forEach(r => {
+        html += `<div class="api-result-item err">
+          <div class="api-result-header" style="font-size:12px">✗ ${esc(r.termin.thema)} – ${esc(r.termin.begin)}</div>
+          <div class="api-result-detail">Status: ${r.result.status} – ${esc(r.result.msg?.substring(0,200))}</div>
+        </div>`;
+      });
+    }
+
+    // Always show payloads for reference
+    html += `<details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--text-dim);padding:8px 0">📋 JSON-Payloads anzeigen (${results.length} Termine)</summary>
+      <div style="margin-top:8px">`;
+    results.forEach((r, i) => {
+      html += `<div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:6px">Termin ${i+1}: ${esc(r.termin.thema)}</div>
+        <pre style="font-size:10px;color:var(--text-mid);white-space:pre-wrap;overflow-x:auto">${JSON.stringify(r.result.payload, null, 2)}</pre>
+      </div>`;
+    });
+    html += '</div></details>';
+
+    $('apiResultContent').innerHTML = html;
+    $('apiResultTitle').textContent = `🚀 DIVERA API – ${ok.length}/${results.length} übertragen`;
+    $('apiResultModal').style.display = 'flex';
+  }
+
+  async function testAPIConnection() {
+    const key = $('cfg-accesskey').value.trim();
+    const url = $('cfg-apiurl').value.trim();
+    const status = $('cfg-api-status');
+    if (!key) { status.textContent = '⚠️ Kein Accesskey eingegeben'; status.style.color = 'var(--orange)'; return; }
+    status.textContent = '⏳ Teste Verbindung …'; status.style.color = 'var(--text-dim)';
+    try {
+      const resp = await fetch('https://app.divera247.com/api/v2/pull/all?accesskey=' + encodeURIComponent(key));
+      if (resp.ok) {
+        status.textContent = '✅ Verbindung erfolgreich!'; status.style.color = 'var(--green)';
+      } else {
+        status.textContent = '❌ Fehler: HTTP ' + resp.status; status.style.color = 'var(--accent)';
+      }
+    } catch(e) {
+      status.textContent = '⚠️ CORS-Blockierung (API erreichbar, aber Browser blockiert)'; status.style.color = 'var(--orange)';
+    }
+  }
+
   document.querySelectorAll('input[type="text"]:not(#aktiveSearch):not(#s-aktiveSearch):not(#m-aktiveSearch)').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')saveTermin();}));
   updatePreview();
   render();
   renderSchnellvorlagen();
   updateGruppenDropdowns();
+  loadAPIKonfig();
 </script>
 </body>
 </html>
